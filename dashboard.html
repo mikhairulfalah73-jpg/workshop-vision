@@ -185,9 +185,13 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 
   <div class="sb-section" style="margin-top:12px">
     <div class="sb-label">Status</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600)">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);margin-bottom:12px">
       <span class="live-dot"></span> Realtime aktif
     </div>
+    <button onclick="newSession()"
+      style="width:100%;padding:9px;border:2px dashed var(--gray-200);border-radius:10px;background:none;font-size:13px;font-weight:600;color:var(--gray-400);cursor:pointer;font-family:var(--font)">
+      + Buat Sesi Baru
+    </button>
   </div>
 </div>
 
@@ -580,12 +584,26 @@ function showPanel(id) {
   renderAll();
 }
 
+// ---- SESI BARU ----
+function newSession() {
+  if (!confirm('Buat sesi baru? Anda akan keluar dari sesi saat ini.')) return;
+  localStorage.removeItem('ws_dash_code');
+  currentSession = null;
+  diagData = []; nilaiData = []; intentionData = []; komitmenData = [];
+  // Reset form setup
+  ['inpCode','inpSchool','inpFasil'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('setupErr').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'none';
+  PANELS.forEach(p => document.getElementById(p).style.display = 'none');
+  document.getElementById('p-setup').style.display = '';
+}
+
 // ---- INIT ----
 window.onload = () => {
   const saved = localStorage.getItem('ws_dash_code');
   if (saved) {
     db.from('workshop_sessions').select('*').eq('session_code',saved).single()
-      .then(({data}) => { if(data) initDashboard(data); });
+      .then(({data}) => { if(data) initDashboard(data); else newSession(); });
   }
 };
 </script>
