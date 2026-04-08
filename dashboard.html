@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Fasilitator — Visi Bersama</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-light: #e8f0ff;
+    --blue-dark: #1240a8;
+    --teal: #0d9488;
+    --teal-light: #e0f7f4;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #f0f4ff; color: var(--gray-800); }
+
+  /* Sidebar + main layout */
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 260px;
+    background: white;
+    border-right: 1px solid var(--gray-200);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+  .main { flex: 1; padding: 24px; overflow-y: auto; }
+
+  /* Sidebar */
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .brand-icon {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: white;
+  }
+  .brand-name { font-size: 14px; font-weight: 700; color: var(--gray-800); }
+  .brand-sub  { font-size: 11px; color: var(--gray-400); }
+
+  .sidebar-section { margin-bottom: 20px; }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gray-400);
+    margin-bottom: 8px;
+  }
+  .sidebar-item {
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--gray-600);
+    cursor: pointer;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+  .sidebar-item:hover { background: var(--gray-100); color: var(--gray-800); }
+  .sidebar-item.active { background: var(--blue-light); color: var(--blue-dark); font-weight: 600; }
+
+  /* Session info card */
+  .session-card {
+    background: var(--blue);
+    color: white;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .session-label { font-size: 11px; opacity: 0.8; margin-bottom: 2px; }
+  .session-code { font-size: 28px; font-weight: 800; letter-spacing: 4px; font-family: monospace; }
+  .session-school { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  .fase-controls { display: flex; flex-direction: column; gap: 8px; }
+  .fase-btn {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: all 0.15s;
+    text-align: left;
+  }
+  .fase-btn:active { transform: scale(0.97); }
+  .fase-btn-diagnosis { background: var(--blue-light); color: var(--blue-dark); }
+  .fase-btn-nilai      { background: var(--teal-light); color: #0f766e; }
+  .fase-btn-selesai    { background: var(--green-light); color: #065f46; }
+  .fase-btn:disabled   { opacity: 0.4; cursor: not-allowed; }
+
+  .current-fase {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+  .fase-diagnosis { background: var(--blue-light); color: var(--blue-dark); }
+  .fase-nilai     { background: var(--teal-light); color: #0f766e; }
+  .fase-selesai   { background: var(--green-light); color: #065f46; }
+
+  /* Cards */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .stat-num { font-size: 32px; font-weight: 800; color: var(--blue); }
+  .stat-label { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+
+  /* Section card */
+  .section-card {
+    background: white;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Bar chart */
+  .bar-item { margin-bottom: 12px; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 4px;
+  }
+  .bar-track {
+    height: 28px;
+    background: var(--gray-100);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s ease;
+    position: relative;
+  }
+  .bar-yes { background: var(--green); }
+  .bar-no  { background: var(--red); opacity: 0.7; }
+  .bar-pct {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* Nilai ranking */
+  .nilai-rank-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .nilai-rank-item:last-child { border-bottom: none; }
+  .rank-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .rank-1 { background: #fbbf24; color: #78350f; }
+  .rank-2 { background: #9ca3af; color: white; }
+  .rank-3 { background: #d97706; color: white; }
+  .rank-other { background: var(--gray-100); color: var(--gray-600); }
+  .rank-name { flex: 1; font-size: 14px; color: var(--gray-800); }
+  .rank-bar {
+    flex: 2;
+    height: 8px;
+    background: var(--gray-100);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .rank-bar-fill {
+    height: 100%;
+    background: var(--teal);
+    border-radius: 4px;
+    transition: width 0.6s;
+  }
+  .rank-count { font-size: 13px; font-weight: 700; color: var(--teal); min-width: 24px; text-align: right; }
+
+  /* Setup form */
+  .setup-form { max-width: 480px; margin: 40px auto; }
+  .form-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .form-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .form-sub   { font-size: 14px; color: var(--gray-400); margin-bottom: 28px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-600);
+    margin-bottom: 6px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    font-size: 15px;
+    color: var(--gray-800);
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: var(--font);
+  }
+  .form-group input:focus { border-color: var(--blue); }
+  .btn-create {
+    width: 100%;
+    padding: 14px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font);
+    margin-top: 8px;
+  }
+  .btn-create:hover { background: var(--blue-dark); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+    .main { padding: 16px; }
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 14px;
+    padding: 30px 0;
+  }
+
+  /* Custom nilai tags */
+  .tag {
+    display: inline-block;
+    background: var(--purple-light);
+    color: var(--purple);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ===================== SIDEBAR ===================== -->
+<div class="sidebar" id="sidebar" style="display:none">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🏫</div>
+    <div>
+      <div class="brand-name">Visi Bersama</div>
+      <div class="brand-sub">Dashboard Fasilitator</div>
+    </div>
+  </div>
+
+  <div class="session-card" id="sidebarSession">
+    <div class="session-label">Kode Sesi</div>
+    <div class="session-code" id="sidebarCode">—</div>
+    <div class="session-school" id="sidebarSchool">—</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Navigasi</div>
+    <div class="sidebar-item active" onclick="showPanel('panel-overview')">📊 Overview</div>
+    <div class="sidebar-item" onclick="showPanel('panel-diagnosis')">🔍 Diagnosis</div>
+    <div class="sidebar-item" onclick="showPanel('panel-nilai')">💎 Nilai Terpilih</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Kontrol Sesi</div>
+    <div class="current-fase fase-diagnosis" id="faseBadge">⬤ Diagnosis</div>
+    <div class="fase-controls">
+      <button class="fase-btn fase-btn-nilai" id="btnBukaValues" onclick="setFase('nilai')">
+        → Buka Sesi Nilai
+      </button>
+      <button class="fase-btn fase-btn-selesai" id="btnSelesai" onclick="setFase('selesai')">
+        ✓ Tutup Workshop
+      </button>
+    </div>
+  </div>
+
+  <div class="sidebar-section" style="margin-top:auto">
+    <div class="sidebar-label">Live</div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600)">
+      <span class="live-dot"></span> Realtime aktif
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MAIN ===================== -->
+<div class="main">
+
+  <!-- SETUP (sebelum ada sesi) -->
+  <div id="panel-setup">
+    <div class="setup-form">
+      <div class="form-card">
+        <div class="form-title">🏫 Buat Sesi Workshop</div>
+        <div class="form-sub">Isi data di bawah untuk membuat sesi baru. Bagikan kode sesi ke guru.</div>
+
+        <div class="form-group">
+          <label>Kode Sesi (unik, huruf kapital)</label>
+          <input type="text" id="inpCode" placeholder="Contoh: VISI2026" maxlength="12"
+            oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+        </div>
+        <div class="form-group">
+          <label>Nama Sekolah</label>
+          <input type="text" id="inpSchool" placeholder="SDN Contoh 1">
+        </div>
+        <div class="form-group">
+          <label>Nama Fasilitator</label>
+          <input type="text" id="inpFasilitator" placeholder="Nama Anda">
+        </div>
+
+        <div id="setupError" style="font-size:13px;color:var(--red);margin:8px 0;display:none"></div>
+        <button class="btn-create" onclick="createSession()">Buat Sesi & Mulai →</button>
+
+        <hr style="margin:24px 0;border:none;border-top:1px solid var(--gray-200)">
+        <p style="font-size:13px;color:var(--gray-400);margin-bottom:12px;">Atau lanjutkan sesi yang sudah ada:</p>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="inpResume" placeholder="Masukkan kode sesi"
+            style="flex:1;padding:10px 12px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:var(--font);outline:none;"
+            oninput="this.value = this.value.toUpperCase().trim()">
+          <button onclick="resumeSession()"
+            style="padding:10px 16px;background:var(--gray-100);border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font);font-weight:600;">
+            Lanjutkan
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h1 style="font-size:22px;font-weight:800;">📊 Overview Workshop</h1>
+        <p style="font-size:13px;color:var(--gray-400);margin-top:2px;">Data diperbarui otomatis</p>
+      </div>
+      <div style="font-size:13px;color:var(--gray-400)" id="lastUpdate">—</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-num" id="statDiagnosis">0</div>
+        <div class="stat-label">Respons Diagnosis</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statNilai">0</div>
+        <div class="stat-label">Votes Nilai</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statFase">—</div>
+        <div class="stat-label">Fase Aktif</div>
+      </div>
+    </div>
+
+    <!-- Top 3 nilai -->
+    <div class="section-card">
+      <div class="section-title">💎 Top 3 Nilai Sementara</div>
+      <div id="top3Container"><div class="empty-state">Menunggu voting nilai...</div></div>
+    </div>
+
+    <!-- Diagnosis summary -->
+    <div class="section-card">
+      <div class="section-title">🔍 Ringkasan Diagnosis</div>
+      <div id="diagnosisSummary"><div class="empty-state">Menunggu respons diagnosis...</div></div>
+    </div>
+  </div>
+
+  <!-- DIAGNOSIS DETAIL -->
+  <div id="panel-diagnosis" style="display:none">
+    <h1 style="font-size:22px;font-weight:800;margin-bottom:20px">🔍 Hasil Diagnosis Lengkap</h1>
+
+    <div class="section-card">
+      <div class="section-title">Persentase "Ya" per Pernyataan</div>
+      <div id="diagnosisDetail"><div class="empty-state">Menunggu data...</div></div>
+    </div>
+  </div>
+
+  <!-- NILAI DETAIL -->
+  <div id="panel-nilai" style="display:none">
+    <h1 style="font-size:22px;font-weight:800;margin-bottom:20px">💎 Ranking Nilai</h1>
+
+    <div class="section-card">
+      <div class="section-title">Semua Nilai Berdasarkan Jumlah Suara</div>
+      <div id="nilaiRanking"><div class="empty-state">Menunggu voting...</div></div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">Nilai Tambahan dari Guru</div>
+      <div id="nilaiCustom"><div class="empty-state">Belum ada nilai tambahan.</div></div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+</div><!-- end layout -->
+
+<script>
+// ============================================================
+// KONFIGURASI — Ganti dengan nilai proyek Supabase Anda
+// ============================================================
+const SUPABASE_URL = 'https://wtzyhmuodneiswpguqrq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enlobXVvZG5laXN3cGd1cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzIyOTMsImV4cCI6MjA5MTIwODI5M30.z7XK0DmkB2B5zLVbk6Ka0jBuf0CWDSoeZVCu3nf2Ruk';
+// ============================================================
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const QUESTIONS = [
+  'Hafal visi sekolah tanpa melihat dinding',
+  'Tahu makna visi dalam cara mengajar',
+  'Pernah merujuk visi saat ambil keputusan',
+  'Siswa tahu mengapa mereka belajar di sini',
+  'Bangga menceritakan visi ke orang lain',
+];
+
+let currentSession = null;
+let diagnosisData = [];
+let nilaiData = [];
+
+// ---- CREATE SESSION ----
+async function createSession() {
+  const code  = document.getElementById('inpCode').value.trim();
+  const school = document.getElementById('inpSchool').value.trim();
+  const fasil  = document.getElementById('inpFasilitator').value.trim();
+  const errEl  = document.getElementById('setupError');
+  errEl.style.display = 'none';
+
+  if (!code || !school || !fasil) {
+    errEl.textContent = 'Semua kolom wajib diisi.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const { data, error } = await db.from('workshop_sessions').insert({
+    session_code: code,
+    nama_sekolah: school,
+    nama_fasilitator: fasil,
+    fase: 'diagnosis',
+    is_active: true,
+  }).select().single();
+
+  if (error) {
+    errEl.textContent = error.code === '23505'
+      ? 'Kode sesi sudah digunakan. Pilih kode lain.'
+      : 'Gagal membuat sesi: ' + error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  localStorage.setItem('ws_dashboard_code', code);
+  loadSession(data);
+}
+
+async function resumeSession() {
+  const code = document.getElementById('inpResume').value.trim().toUpperCase();
+  if (!code) return;
+
+  const { data, error } = await db.from('workshop_sessions')
+    .select('*').eq('session_code', code).single();
+  if (error || !data) { alert('Sesi tidak ditemukan.'); return; }
+
+  localStorage.setItem('ws_dashboard_code', code);
+  loadSession(data);
+}
+
+async function loadSession(session) {
+  currentSession = session;
+  document.getElementById('panel-setup').style.display = 'none';
+  document.getElementById('sidebar').style.display = '';
+  document.getElementById('sidebarCode').textContent   = session.session_code;
+  document.getElementById('sidebarSchool').textContent = session.nama_sekolah;
+  updateFaseBadge(session.fase);
+  showPanel('panel-overview');
+  await fetchAll();
+  subscribeRealtime();
+}
+
+async function fetchAll() {
+  const code = currentSession.session_code;
+
+  const [{ data: diag }, { data: nilai }] = await Promise.all([
+    db.from('diagnosis_responses').select('*').eq('session_code', code),
+    db.from('nilai_votes').select('*').eq('session_code', code),
+  ]);
+
+  diagnosisData = diag || [];
+  nilaiData     = nilai || [];
+
+  renderAll();
+  document.getElementById('lastUpdate').textContent =
+    'Update: ' + new Date().toLocaleTimeString('id-ID');
+}
+
+function renderAll() {
+  const code = currentSession?.session_code;
+  document.getElementById('statDiagnosis').textContent = diagnosisData.length;
+  document.getElementById('statNilai').textContent     = nilaiData.length;
+  document.getElementById('statFase').textContent      = currentSession?.fase || '—';
+
+  renderDiagnosisSummary();
+  renderTop3();
+  renderDiagnosisDetail();
+  renderNilaiRanking();
+}
+
+// ---- DIAGNOSIS SUMMARY (overview) ----
+function renderDiagnosisSummary() {
+  const container = document.getElementById('diagnosisSummary');
+  if (!diagnosisData.length) {
+    container.innerHTML = '<div class="empty-state">Menunggu respons diagnosis...</div>';
+    return;
+  }
+  const fields = ['q1','q2','q3','q4','q5'];
+  const total = diagnosisData.length;
+  container.innerHTML = fields.map((f, i) => {
+    const yes = diagnosisData.filter(r => r[f]).length;
+    const pct = Math.round(yes / total * 100);
+    return `<div class="bar-item">
+      <div class="bar-label">
+        <span>${QUESTIONS[i]}</span>
+        <span style="font-size:11px;color:var(--gray-400)">${yes}/${total}</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill bar-yes" style="width:${pct}%">
+          ${pct > 10 ? `<span class="bar-pct">${pct}%</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- DIAGNOSIS DETAIL ----
+function renderDiagnosisDetail() {
+  const container = document.getElementById('diagnosisDetail');
+  if (!diagnosisData.length) {
+    container.innerHTML = '<div class="empty-state">Menunggu data...</div>';
+    return;
+  }
+  const fields = ['q1','q2','q3','q4','q5'];
+  const total = diagnosisData.length;
+  container.innerHTML = fields.map((f, i) => {
+    const yes = diagnosisData.filter(r => r[f]).length;
+    const no  = total - yes;
+    const pctY = Math.round(yes / total * 100);
+    const pctN = 100 - pctY;
+    return `<div class="bar-item" style="margin-bottom:20px">
+      <div class="bar-label">
+        <span style="font-weight:600">${QUESTIONS[i]}</span>
+        <span style="font-size:12px;color:var(--gray-400)">${total} respons</span>
+      </div>
+      <div style="display:flex;gap:4px;height:36px;border-radius:8px;overflow:hidden;">
+        <div style="background:var(--green);width:${pctY}%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:width 0.6s;min-width:${yes?'32px':'0'}">
+          ${yes ? `✓ ${pctY}%` : ''}
+        </div>
+        <div style="background:var(--red);opacity:0.7;width:${pctN}%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:width 0.6s;min-width:${no?'32px':'0'}">
+          ${no ? `✗ ${pctN}%` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- NILAI TALLY ----
+function getNilaiCounts() {
+  const counts = {};
+  nilaiData.forEach(v => {
+    (v.nilai_dipilih || []).forEach(n => {
+      counts[n] = (counts[n] || 0) + 1;
+    });
+  });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+}
+
+function renderTop3() {
+  const container = document.getElementById('top3Container');
+  const sorted = getNilaiCounts();
+  if (!sorted.length) {
+    container.innerHTML = '<div class="empty-state">Menunggu voting nilai...</div>';
+    return;
+  }
+  const top = sorted.slice(0, 3);
+  const medals = ['🥇','🥈','🥉'];
+  container.innerHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap">` +
+    top.map((([n, c], i) => `
+      <div style="flex:1;min-width:140px;background:var(--blue-light);border-radius:12px;padding:16px;text-align:center">
+        <div style="font-size:28px">${medals[i]}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--blue-dark);margin-top:4px">${n}</div>
+        <div style="font-size:13px;color:var(--blue);margin-top:2px">${c} suara</div>
+      </div>`)).join('') +
+    '</div>';
+}
+
+function renderNilaiRanking() {
+  const container = document.getElementById('nilaiRanking');
+  const sorted = getNilaiCounts();
+  if (!sorted.length) {
+    container.innerHTML = '<div class="empty-state">Menunggu voting...</div>';
+    return;
+  }
+  const max = sorted[0][1];
+  container.innerHTML = sorted.map(([n, c], i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+    return `<div class="nilai-rank-item">
+      <div class="rank-num ${rankClass}">${i + 1}</div>
+      <div class="rank-name">${n}</div>
+      <div class="rank-bar"><div class="rank-bar-fill" style="width:${Math.round(c/max*100)}%"></div></div>
+      <div class="rank-count">${c}</div>
+    </div>`;
+  }).join('');
+
+  // Custom nilai
+  const customContainer = document.getElementById('nilaiCustom');
+  const customs = nilaiData.filter(v => v.nilai_sendiri).map(v => v.nilai_sendiri);
+  if (!customs.length) {
+    customContainer.innerHTML = '<div class="empty-state">Belum ada nilai tambahan.</div>';
+  } else {
+    customContainer.innerHTML = customs.map(n => `<span class="tag">${n}</span>`).join('');
+  }
+}
+
+// ---- FASE CONTROL ----
+async function setFase(fase) {
+  if (!confirm(`Ubah fase ke "${fase}"?`)) return;
+  await db.from('workshop_sessions')
+    .update({ fase })
+    .eq('session_code', currentSession.session_code);
+  currentSession.fase = fase;
+  updateFaseBadge(fase);
+  document.getElementById('statFase').textContent = fase;
+}
+
+function updateFaseBadge(fase) {
+  const b = document.getElementById('faseBadge');
+  const labels = { diagnosis: '⬤ Diagnosis', nilai: '⬤ Nilai', selesai: '⬤ Selesai' };
+  const cls    = { diagnosis: 'fase-diagnosis', nilai: 'fase-nilai', selesai: 'fase-selesai' };
+  b.textContent = labels[fase] || fase;
+  b.className = `current-fase ${cls[fase] || ''}`;
+}
+
+// ---- REALTIME ----
+function subscribeRealtime() {
+  const code = currentSession.session_code;
+  db.channel('dashboard-live')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'diagnosis_responses',
+      filter: `session_code=eq.${code}` }, payload => {
+        diagnosisData.push(payload.new);
+        renderAll();
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'nilai_votes',
+      filter: `session_code=eq.${code}` }, payload => {
+        nilaiData.push(payload.new);
+        renderAll();
+    })
+    .subscribe();
+}
+
+// ---- PANEL SWITCH ----
+function showPanel(id) {
+  ['panel-overview','panel-diagnosis','panel-nilai'].forEach(p => {
+    document.getElementById(p).style.display = p === id ? '' : 'none';
+  });
+  document.querySelectorAll('.sidebar-item').forEach(el => {
+    el.classList.remove('active');
+    if (el.getAttribute('onclick')?.includes(id)) el.classList.add('active');
+  });
+  renderAll();
+}
+
+// ---- INIT ----
+window.onload = () => {
+  const saved = localStorage.getItem('ws_dashboard_code');
+  if (saved) {
+    db.from('workshop_sessions').select('*').eq('session_code', saved).single()
+      .then(({ data }) => { if (data) loadSession(data); });
+  }
+};
+</script>
+</body>
+</html>
