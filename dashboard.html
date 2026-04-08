@@ -41,6 +41,10 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 .sb-item:hover{background:var(--gray-100);color:var(--gray-800)}
 .sb-item.active{background:var(--blue-light);color:var(--blue-dark);font-weight:600}
 
+/* Tombol keluar sesi */
+.btn-logout{width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:13px;font-weight:600;color:var(--gray-600);background:white;cursor:pointer;font-family:var(--font);text-align:left;display:flex;align-items:center;gap:8px;transition:all .15s;margin-top:4px}
+.btn-logout:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+
 .fase-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px}
 .fb-diagnosis{background:var(--blue-light);color:var(--blue-dark)}
 .fb-nilai{background:var(--teal-light);color:#0f766e}
@@ -49,8 +53,9 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 .fb-selesai{background:var(--green-light);color:#065f46}
 
 .fase-btns{display:flex;flex-direction:column;gap:7px}
-.fase-btn{padding:9px 14px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:left}
+.fase-btn{padding:9px 14px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:left;position:relative}
 .fase-btn:disabled{opacity:.35;cursor:not-allowed}
+.fase-btn.current-fase{outline:2px solid currentColor;outline-offset:2px}
 .fb-to-nilai    {background:var(--teal-light);color:#0f766e}
 .fb-to-intention{background:var(--purple-light);color:#5b21b6}
 .fb-to-komitmen {background:var(--orange-light);color:#9a3412}
@@ -117,7 +122,7 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 /* Tags */
 .tag{display:inline-block;background:var(--purple-light);color:var(--purple);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px}
 
-/* Word cloud (top keywords) */
+/* Word cloud */
 .word-cloud{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0}
 .word-tag{padding:6px 14px;border-radius:20px;font-weight:600;cursor:default}
 
@@ -138,6 +143,10 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 .resume-btn{padding:10px 16px;background:var(--gray-100);border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font);font-weight:600}
 
 .empty{text-align:center;color:var(--gray-400);font-size:14px;padding:28px 0}
+
+/* Toast notifikasi */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gray-800);color:white;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
 
 @media(max-width:768px){
   .layout{flex-direction:column}
@@ -176,18 +185,20 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
     <div class="sb-label">Kontrol Fase</div>
     <div class="fase-badge fb-diagnosis" id="faseBadge">⬤ Diagnosis</div>
     <div class="fase-btns">
-      <button class="fase-btn fb-to-nilai"     onclick="setFase('nilai')">→ Buka Sesi Nilai</button>
-      <button class="fase-btn fb-to-intention" onclick="setFase('intention')">→ Buka Intention</button>
-      <button class="fase-btn fb-to-komitmen"  onclick="setFase('komitmen')">→ Buka Komitmen</button>
-      <button class="fase-btn fb-to-selesai"   onclick="setFase('selesai')">✓ Tutup Workshop</button>
+      <button class="fase-btn fb-to-nilai"     id="btnNilai"     onclick="setFase('nilai')">→ Buka Sesi Nilai</button>
+      <button class="fase-btn fb-to-intention" id="btnIntention" onclick="setFase('intention')">→ Buka Intention</button>
+      <button class="fase-btn fb-to-komitmen"  id="btnKomitmen"  onclick="setFase('komitmen')">→ Buka Komitmen</button>
+      <button class="fase-btn fb-to-selesai"   id="btnSelesai"   onclick="setFase('selesai')">✓ Tutup Workshop</button>
     </div>
   </div>
 
   <div class="sb-section" style="margin-top:12px">
     <div class="sb-label">Status</div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600)">
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);margin-bottom:10px">
       <span class="live-dot"></span> Realtime aktif
     </div>
+    <!-- TOMBOL KELUAR SESI -->
+    <button class="btn-logout" onclick="logoutSession()">🚪 Ganti / Keluar Sesi</button>
   </div>
 </div>
 
@@ -293,6 +304,9 @@ body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 </div><!-- end main -->
 </div><!-- end layout -->
 
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
 // ============================================================
 const SUPABASE_URL      = 'https://wtzyhmuodneiswpguqrq.supabase.co';
@@ -321,18 +335,33 @@ const PPP_LIST = [
   { icon:'💪', name:'Tangguh' },
 ];
 
+// Urutan fase — dipakai untuk disable tombol
+const FASE_ORDER = ['diagnosis', 'nilai', 'intention', 'komitmen', 'selesai'];
+const FASE_BTNS  = ['btnNilai', 'btnIntention', 'btnKomitmen', 'btnSelesai'];
+// Fase yang dituju tiap tombol (indeks sesuai FASE_BTNS)
+const FASE_TARGET = ['nilai', 'intention', 'komitmen', 'selesai'];
+
 let currentSession = null;
 let diagData = [], nilaiData = [], intentionData = [], komitmenData = [];
+let realtimeChannel = null;
 
 const PANELS = ['p-setup','p-overview','p-diagnosis','p-nilai','p-intention','p-komitmen'];
 
+// ---- TOAST ----
+function showToast(msg, duration = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
 // ---- CREATE / RESUME ----
 async function createSession() {
-  const code = document.getElementById('inpCode').value.trim();
+  const code   = document.getElementById('inpCode').value.trim();
   const school = document.getElementById('inpSchool').value.trim();
-  const fasil = document.getElementById('inpFasil').value.trim();
-  const err = document.getElementById('setupErr');
-  err.style.display='none';
+  const fasil  = document.getElementById('inpFasil').value.trim();
+  const err    = document.getElementById('setupErr');
+  err.style.display = 'none';
   if (!code||!school||!fasil) { err.textContent='Semua kolom wajib diisi.'; err.style.display='block'; return; }
   const { data, error } = await db.from('workshop_sessions').insert({
     session_code:code, nama_sekolah:school, nama_fasilitator:fasil, fase:'diagnosis', is_active:true
@@ -354,10 +383,28 @@ async function resumeSession() {
   initDashboard(data);
 }
 
+// ---- KELUAR SESI ----
+function logoutSession() {
+  if (!confirm('Keluar dari sesi ini? Kamu bisa masuk lagi nanti dengan kode sesi yang sama.')) return;
+  localStorage.removeItem('ws_dash_code');
+  // Unsubscribe realtime
+  if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
+  currentSession = null;
+  diagData = []; nilaiData = []; intentionData = []; komitmenData = [];
+  // Reset form
+  document.getElementById('inpCode').value = '';
+  document.getElementById('inpSchool').value = '';
+  document.getElementById('inpFasil').value = '';
+  document.getElementById('inpResume').value = '';
+  // Tampilkan setup
+  document.getElementById('sidebar').style.display = 'none';
+  PANELS.forEach(p => document.getElementById(p).style.display = p==='p-setup' ? '' : 'none');
+}
+
 async function initDashboard(session) {
   currentSession = session;
-  document.getElementById('p-setup').style.display='none';
-  document.getElementById('sidebar').style.display='';
+  document.getElementById('p-setup').style.display = 'none';
+  document.getElementById('sidebar').style.display = '';
   document.getElementById('sbCode').textContent   = session.session_code;
   document.getElementById('sbSchool').textContent = session.nama_sekolah;
   updateFaseBadge(session.fase);
@@ -444,7 +491,6 @@ function renderNilaiAll() {
 
 // ---- INTENTION ----
 function renderIntentionAll() {
-  // PPP ranking
   const pppCounts = {};
   intentionData.forEach(r => (r.ppp_dipilih||[]).forEach(p => { pppCounts[p]=(pppCounts[p]||0)+1; }));
   const pppSorted = PPP_LIST.map(p=>({ ...p, count:pppCounts[p.name]||0 })).sort((a,b)=>b.count-a.count);
@@ -461,7 +507,6 @@ function renderIntentionAll() {
       </div>`).join('');
   }
 
-  // Intention list
   const listEl = document.getElementById('intentionList');
   if (!intentionData.length) { listEl.innerHTML='<div class="empty">Menunggu data...</div>'; return; }
   listEl.innerHTML = intentionData.map(r=>`
@@ -487,7 +532,6 @@ function renderKomitmenWall() {
 
 // ---- OVERVIEW ----
 function renderOverview() {
-  // Top 3 nilai
   const sorted = getNilaiCounts();
   const ovTop3 = document.getElementById('ovTop3');
   if (!sorted.length) { ovTop3.innerHTML='<div class="empty">Menunggu voting nilai...</div>'; }
@@ -503,7 +547,6 @@ function renderOverview() {
         </div>`).join('') + '</div>';
   }
 
-  // Diagnosis overview (bar ringkas)
   const ovDiag = document.getElementById('ovDiagnosis');
   if (!diagData.length) { ovDiag.innerHTML='<div class="empty">Menunggu respons...</div>'; }
   else {
@@ -522,11 +565,9 @@ function renderOverview() {
     }).join('');
   }
 
-  // Intention word cloud (kata karakter terbanyak)
   const ovInt = document.getElementById('ovIntention');
   if (!intentionData.length) { ovInt.innerHTML='<div class="empty">Menunggu data...</div>'; }
   else {
-    // Kumpulkan semua kata dari field karakter
     const words = {};
     intentionData.forEach(r => {
       r.karakter.toLowerCase().split(/[,\s]+/).filter(w=>w.length>3).forEach(w => {
@@ -547,9 +588,11 @@ function renderOverview() {
 // ---- FASE ----
 async function setFase(fase) {
   if (!confirm(`Ubah fase ke "${fase}"?`)) return;
-  await db.from('workshop_sessions').update({ fase }).eq('session_code', currentSession.session_code);
+  const { error } = await db.from('workshop_sessions').update({ fase }).eq('session_code', currentSession.session_code);
+  if (error) { showToast('❌ Gagal ubah fase: ' + error.message); return; }
   currentSession.fase = fase;
   updateFaseBadge(fase);
+  showToast(`✅ Fase diubah ke: ${fase}`);
 }
 
 function updateFaseBadge(fase) {
@@ -558,16 +601,27 @@ function updateFaseBadge(fase) {
   const lbl = { diagnosis:'⬤ Diagnosis', nilai:'⬤ Nilai', intention:'⬤ Intention', komitmen:'⬤ Komitmen', selesai:'⬤ Selesai' };
   b.className = `fase-badge ${cls[fase]||'fb-diagnosis'}`;
   b.textContent = lbl[fase]||fase;
+
+  // Disable tombol fase yang sudah lewat atau fase saat ini
+  const currentIdx = FASE_ORDER.indexOf(fase);
+  FASE_BTNS.forEach((btnId, i) => {
+    const btn = document.getElementById(btnId);
+    const targetIdx = FASE_ORDER.indexOf(FASE_TARGET[i]);
+    // Disable jika target fase sudah lewat (termasuk fase sekarang)
+    btn.disabled = targetIdx <= currentIdx;
+    // Tandai tombol fase berikutnya
+    btn.classList.toggle('current-fase', targetIdx === currentIdx + 1);
+  });
 }
 
 // ---- REALTIME ----
 function subscribeRealtime() {
   const code = currentSession.session_code;
-  db.channel('dash-live')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'diagnosis_responses',filter:`session_code=eq.${code}`},p=>{ diagData.push(p.new); renderAll(); })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'nilai_votes',filter:`session_code=eq.${code}`},p=>{ nilaiData.push(p.new); renderAll(); })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'intention_responses',filter:`session_code=eq.${code}`},p=>{ intentionData.push(p.new); renderAll(); })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'komitmen_responses',filter:`session_code=eq.${code}`},p=>{ komitmenData.push(p.new); renderAll(); })
+  realtimeChannel = db.channel('dash-live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'diagnosis_responses',filter:`session_code=eq.${code}`},p=>{ diagData.push(p.new); renderAll(); showToast('🔍 Respons diagnosis baru masuk'); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'nilai_votes',filter:`session_code=eq.${code}`},p=>{ nilaiData.push(p.new); renderAll(); showToast('💎 Vote nilai baru masuk'); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'intention_responses',filter:`session_code=eq.${code}`},p=>{ intentionData.push(p.new); renderAll(); showToast('🌱 Intention baru masuk'); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'komitmen_responses',filter:`session_code=eq.${code}`},p=>{ komitmenData.push(p.new); renderAll(); showToast('🤝 Komitmen baru masuk'); })
     .subscribe();
 }
 
