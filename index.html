@@ -517,57 +517,66 @@ async function submitKomitmen() {
   showScreen('screen-done'); updateProgress('selesai');
 }
 
-// ---- REALTIME ----
-function currentScreen() {
-  const active = document.querySelector('.screen.active');
-  return active ? active.id : '';
+// ---- REALTIME + POLLING ----
+
+// Fungsi utama pindah fase — dipanggil baik dari realtime maupun polling
+function handleFaseChange(fase) {
+  if (fase === currentSession.fase && fase !== 'selesai') {
+    // Cek apakah perlu pindah dari screen tunggu
+  }
+  currentSession.fase = fase;
+
+  if (fase === 'nilai' && !submitted.nilai) {
+    showToast('Sesi Nilai dibuka!');
+    renderNilai(); showScreen('screen-nilai'); updateProgress('nilai');
+
+  } else if (fase === 'intention' && !submitted.intention) {
+    showToast('Sesi Intention dibuka!');
+    renderPPP(); showScreen('screen-intention'); updateProgress('intention');
+
+  } else if (fase === 'komitmen' && !submitted.komitmen) {
+    showToast('Sesi Komitmen dibuka!');
+    showScreen('screen-komitmen'); updateProgress('komitmen');
+
+  } else if (fase === 'selesai' && !submitted.komitmen) {
+    showToast('Workshop selesai!', 'success');
+    setTimeout(() => { showScreen('screen-done'); updateProgress('selesai'); }, 1500);
+  }
+}
+
+let pollInterval = null;
+
+function startPolling() {
+  // Poll setiap 4 detik sebagai backup realtime
+  pollInterval = setInterval(async () => {
+    // Hanya poll jika sedang di screen tunggu
+    const active = document.querySelector('.screen.active');
+    if (!active || active.id !== 'screen-tunggu') return;
+
+    const { data } = await db
+      .from('workshop_sessions')
+      .select('fase')
+      .eq('session_code', currentSession.session_code)
+      .single();
+
+    if (data && data.fase !== currentSession.fase) {
+      handleFaseChange(data.fase);
+    }
+  }, 4000);
 }
 
 function subscribeToSession() {
   db.channel('guru-ws')
-    .on('postgres_changes',{ event:'UPDATE', schema:'public', table:'workshop_sessions',
-      filter:`session_code=eq.${currentSession.session_code}` }, payload => {
-      const fase = payload.new.fase;
-      currentSession.fase = fase;
-      const screen = currentScreen();
+    .on('postgres_changes', {
+      event: 'UPDATE', schema: 'public', table: 'workshop_sessions',
+      filter: `session_code=eq.${currentSession.session_code}`
+    }, payload => {
+      handleFaseChange(payload.new.fase);
+    })
+    .subscribe();
 
-      if (fase==='nilai') {
-        // Pindah jika belum submit nilai (masih di diagnosis atau tunggu)
-        if (!submitted.nilai) {
-          showToast('Sesi Nilai dibuka!');
-          renderNilai(); showScreen('screen-nilai'); updateProgress('nilai');
-        }
-      }
-
-      if (fase==='intention') {
-        // Pindah jika sudah submit nilai tapi belum submit intention
-        // (bisa di screen-tunggu ATAU masih di screen-nilai)
-        if (submitted.nilai && !submitted.intention) {
-          showToast('Sesi Intention dibuka!');
-          renderPPP(); showScreen('screen-intention'); updateProgress('intention');
-        } else if (!submitted.nilai) {
-          // Guru belum submit nilai sama sekali, tetap di nilai
-          showToast('Sesi Intention dibuka!');
-          renderNilai(); showScreen('screen-nilai'); updateProgress('nilai');
-        }
-      }
-
-      if (fase==='komitmen') {
-        if (submitted.intention && !submitted.komitmen) {
-          showToast('Sesi Komitmen dibuka!');
-          showScreen('screen-komitmen'); updateProgress('komitmen');
-        } else if (!submitted.intention) {
-          // Guru belum submit intention, arahkan ke intention dulu
-          showToast('Sesi Komitmen dibuka!');
-          renderPPP(); showScreen('screen-intention'); updateProgress('intention');
-        }
-      }
-
-      if (fase==='selesai') {
-        showToast('Workshop selesai!','success');
-        setTimeout(()=>{ showScreen('screen-done'); updateProgress('selesai'); }, 1500);
-      }
-    }).subscribe();
+  // Selalu jalankan polling sebagai backup
+  startPolling();
 }
 
 // ---- HELPERS ----
