@@ -34,12 +34,11 @@ body{font-family:var(--font);background:#f0f4ff;min-height:100vh;color:var(--gra
 .progress-label{font-size:12px;color:var(--gray-600);white-space:nowrap;min-width:72px;text-align:right}
 
 .card{background:white;border-radius:16px;padding:24px 20px;margin:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.section-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px;letter-spacing:.5px}
+.section-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px}
 .badge-blue{background:var(--blue-light);color:var(--blue-dark)}
 .badge-teal{background:var(--teal-light);color:#0f766e}
 .badge-purple{background:var(--purple-light);color:#5b21b6}
 .badge-orange{background:var(--orange-light);color:#9a3412}
-.badge-green{background:var(--green-light);color:#065f46}
 
 h2{font-size:18px;font-weight:700;color:var(--gray-800);margin-bottom:8px}
 .desc{font-size:14px;color:var(--gray-600);line-height:1.6;margin-bottom:20px}
@@ -54,7 +53,7 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
 .check-item.yes{border-color:var(--green);background:var(--green-light)}
 .check-item.no{border-color:var(--red);background:var(--red-light)}
 .check-toggle{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
-.toggle-btn{width:36px;height:36px;border-radius:50%;border:2px solid var(--gray-200);background:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.toggle-btn{width:38px;height:38px;border-radius:50%;border:2px solid var(--gray-200);background:white;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .toggle-btn.yes-btn.active{background:var(--green);border-color:var(--green);color:white}
 .toggle-btn.no-btn.active{background:var(--red);border-color:var(--red);color:white}
 .check-text{font-size:14px;line-height:1.5;color:var(--gray-800);flex:1;padding-top:2px}
@@ -95,9 +94,6 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
 .screen{display:none}
 .screen.active{display:block}
 
-.spinner{width:40px;height:40px;border:3px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:24px auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gray-800);color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;z-index:100;transition:transform .3s;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.success{background:var(--green)}
@@ -110,7 +106,8 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
 .success-text{text-align:center;margin-bottom:24px}
 .success-text h2{font-size:22px;margin-bottom:8px}
 .success-text p{font-size:15px;color:var(--gray-600);line-height:1.6}
-.tunggu-center{text-align:center;padding:12px 0}
+.spinner{width:32px;height:32px;border:3px solid var(--gray-200);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -144,11 +141,6 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
     <button class="btn btn-blue" id="btnJoin" onclick="joinSession()">Gabung →</button>
     <div class="err" id="joinError"></div>
   </div>
-  <div class="card" style="background:var(--blue-light);box-shadow:none;border:none">
-    <p style="font-size:13px;color:var(--blue-dark);text-align:center;line-height:1.7">
-      Workshop ini dirancang agar sekolah memiliki <strong>visi yang hidup</strong> — bukan sekadar tulisan di dinding, tapi yang dirasakan setiap hari oleh semua guru.
-    </p>
-  </div>
 </div>
 
 <!-- DIAGNOSIS -->
@@ -156,11 +148,11 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
   <div class="card">
     <div class="section-badge badge-blue">📊 Bagian 1 — Diagnosis</div>
     <h2>Uji 3 Menit Kolektif</h2>
-    <p class="desc">Jawab 5 pertanyaan dengan jujur. Pilih <strong>✓ Ya</strong> atau <strong>✗ Tidak</strong> untuk setiap pernyataan.</p>
+    <p class="desc">Jawab 5 pertanyaan dengan jujur. Pilih <strong>✓ Ya</strong> atau <strong>✗ Tidak</strong>.</p>
     <div class="info-box">Ini bukan tes — ini titik awal kita bersama. Semua jawaban bersifat anonim.</div>
     <div id="checklistItems"></div>
     <div class="err" id="diagnosisError"></div>
-    <button class="btn btn-blue" id="btnDiagnosis" onclick="submitDiagnosis()" disabled>Kirim Jawaban →</button>
+    <button class="btn btn-blue" id="btnDiagnosis" onclick="submitDiagnosis()" disabled>Kirim & Lanjut →</button>
   </div>
 </div>
 
@@ -177,7 +169,7 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
       <input type="text" id="nilaiSendiri" placeholder="Tulis nilai yang tidak ada di atas..." maxlength="30">
     </div>
     <div class="err" id="nilaiError"></div>
-    <button class="btn btn-teal" id="btnNilai" onclick="submitNilai()" disabled>Kirim Pilihan →</button>
+    <button class="btn btn-teal" id="btnNilai" onclick="submitNilai()" disabled>Kirim & Lanjut →</button>
   </div>
 </div>
 
@@ -187,11 +179,9 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
     <div class="section-badge badge-purple">🌱 Bagian 3 — Intention</div>
     <h2>Manusia seperti apa yang ingin kita bentuk?</h2>
     <p class="desc">Bayangkan 10 tahun dari sekarang, Anda bertemu mantan siswa di jalan. Lengkapi harapan berikut.</p>
-
     <div class="info-box" style="background:var(--purple-light);border-color:var(--purple);color:#4c1d95">
       "Kita ingin ia menjadi seseorang yang <strong>_____</strong>, mampu <strong>_____</strong>, dan berkontribusi dengan cara <strong>_____</strong>."
     </div>
-
     <div class="input-group">
       <label>Karakter / sifat yang ingin dimiliki siswa</label>
       <input type="text" id="int_karakter" placeholder="Contoh: jujur, berani, dan bersyukur" maxlength="120" oninput="checkIntentionComplete()">
@@ -204,14 +194,12 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
       <label>Cara ia berkontribusi untuk masyarakat</label>
       <input type="text" id="int_kontribusi" placeholder="Contoh: melayani komunitas dengan keahliannya" maxlength="150" oninput="checkIntentionComplete()">
     </div>
-
     <div class="divider"></div>
     <p style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px">Dari 8 dimensi Profil Pelajar Pancasila, pilih <strong>3–4 yang paling ingin dikuatkan:</strong></p>
     <div class="select-count ppp-count">Terpilih: <strong id="countPPP">0</strong> / 4</div>
     <div class="ppp-grid" id="pppGrid"></div>
-
     <div class="err" id="intentionError"></div>
-    <button class="btn btn-purple" id="btnIntention" onclick="submitIntention()" disabled>Kirim Harapan →</button>
+    <button class="btn btn-purple" id="btnIntention" onclick="submitIntention()" disabled>Kirim & Lanjut →</button>
   </div>
 </div>
 
@@ -220,8 +208,7 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
   <div class="card">
     <div class="section-badge badge-orange">🤝 Bagian 4 — Komitmen</div>
     <h2>Komitmen Pribadi Saya</h2>
-    <p class="desc">Visi hanya hidup kalau ada tindakan nyata. Tuliskan <strong>1 hal konkret</strong> yang akan Anda lakukan secara konsisten mulai minggu depan.</p>
-
+    <p class="desc">Tuliskan <strong>1 hal konkret</strong> yang akan Anda lakukan secara konsisten mulai minggu depan.</p>
     <div class="komitmen-examples">
       <strong>Contoh komitmen yang kuat:</strong>
       <ul>
@@ -230,7 +217,6 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
         <li>"Berbagi 1 cerita bermakna dari kelas saya di grup WA guru setiap Jumat"</li>
       </ul>
     </div>
-
     <div class="input-group">
       <label>Komitmen saya (1 tindakan konkret &amp; terukur)</label>
       <textarea id="komitmenText"
@@ -238,20 +224,8 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
         maxlength="300" oninput="checkKomitmenComplete()"></textarea>
     </div>
     <div id="charCount" style="text-align:right;font-size:12px;color:var(--gray-400);margin:-10px 0 14px">0 / 300</div>
-
     <div class="err" id="komitmenError"></div>
     <button class="btn btn-orange" id="btnKomitmen" onclick="submitKomitmen()" disabled>Kirim Komitmen →</button>
-  </div>
-</div>
-
-<!-- TUNGGU -->
-<div class="screen" id="screen-tunggu">
-  <div class="card tunggu-center">
-    <div style="font-size:44px;margin-bottom:12px" id="tungguIcon">✅</div>
-    <h2 id="tungguJudul" style="margin-bottom:10px">Jawaban Terkirim!</h2>
-    <p class="desc" id="tungguDesc">Tunggu fasilitator membuka sesi berikutnya.</p>
-    <div class="spinner"></div>
-    <p style="font-size:13px;color:var(--gray-400)">Halaman akan berpindah otomatis...</p>
   </div>
 </div>
 
@@ -277,7 +251,6 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
         3. Bulan depan — Vision Health Check pertama
       </p>
     </div>
-    <button class="btn btn-blue" onclick="location.reload()">Mulai Ulang</button>
   </div>
 </div>
 
@@ -294,7 +267,6 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentSession = null, namaGuru = '';
 let diagnosisAnswers = {}, selectedNilai = new Set(), selectedPPP = new Set();
-let submitted = { diagnosis:false, nilai:false, intention:false, komitmen:false };
 
 const QUESTIONS = [
   'Saya bisa menyebutkan visi sekolah kita tanpa melihat dinding',
@@ -324,16 +296,16 @@ const PPP_LIST = [
   { icon:'💪', name:'Tangguh',               sub:'Resiliensi menghadapi tantangan' },
 ];
 
-const FASE_ORDER = ['diagnosis','nilai','intention','komitmen','selesai'];
+const FASE_STEPS = ['diagnosis','nilai','intention','komitmen','selesai'];
 const FASE_LABEL = { diagnosis:'Diagnosis', nilai:'Nilai', intention:'Intention', komitmen:'Komitmen', selesai:'Selesai' };
 
 // ---- RENDER ----
 function renderChecklist() {
   const c = document.getElementById('checklistItems'); c.innerHTML = '';
-  QUESTIONS.forEach((q,i) => {
+  QUESTIONS.forEach((q, i) => {
     const el = document.createElement('div');
-    el.className='check-item'; el.id=`qi-${i}`;
-    el.innerHTML=`<span class="check-text">${q}</span>
+    el.className = 'check-item'; el.id = `qi-${i}`;
+    el.innerHTML = `<span class="check-text">${q}</span>
       <div class="check-toggle">
         <button class="toggle-btn yes-btn" onclick="setAnswer(${i},true)">✓</button>
         <button class="toggle-btn no-btn" onclick="setAnswer(${i},false)">✗</button>
@@ -346,7 +318,7 @@ function setAnswer(idx, val) {
   diagnosisAnswers[idx] = val;
   const item = document.getElementById(`qi-${idx}`);
   item.className = 'check-item ' + (val ? 'yes' : 'no');
-  item.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  item.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
   item.querySelector(val ? '.yes-btn' : '.no-btn').classList.add('active');
   document.getElementById('btnDiagnosis').disabled = Object.keys(diagnosisAnswers).length < 5;
 }
@@ -355,8 +327,8 @@ function renderNilai() {
   const g = document.getElementById('nilaiGrid'); g.innerHTML = '';
   NILAI_LIST.forEach(n => {
     const el = document.createElement('div');
-    el.className='nilai-card'; el.textContent=n;
-    el.onclick=()=>toggleNilai(n,el);
+    el.className = 'nilai-card'; el.textContent = n;
+    el.onclick = () => toggleNilai(n, el);
     g.appendChild(el);
   });
 }
@@ -364,23 +336,23 @@ function renderNilai() {
 function toggleNilai(n, el) {
   if (selectedNilai.has(n)) { selectedNilai.delete(n); el.classList.remove('selected'); }
   else {
-    if (selectedNilai.size>=3) { showToast('Maksimal 3 nilai','error'); return; }
+    if (selectedNilai.size >= 3) { showToast('Maksimal 3 nilai', 'error'); return; }
     selectedNilai.add(n); el.classList.add('selected');
   }
   document.getElementById('countNilai').textContent = selectedNilai.size;
   document.querySelectorAll('.nilai-card').forEach(c => {
-    if(!c.classList.contains('selected')) c.classList.toggle('disabled', selectedNilai.size>=3);
+    if (!c.classList.contains('selected')) c.classList.toggle('disabled', selectedNilai.size >= 3);
   });
-  document.getElementById('btnNilai').disabled = selectedNilai.size===0;
+  document.getElementById('btnNilai').disabled = selectedNilai.size === 0;
 }
 
 function renderPPP() {
   const g = document.getElementById('pppGrid'); g.innerHTML = '';
   PPP_LIST.forEach(p => {
     const el = document.createElement('div');
-    el.className='ppp-card';
-    el.innerHTML=`<div class="ppp-icon">${p.icon}</div><span class="ppp-name">${p.name}</span><span class="ppp-sub">${p.sub}</span>`;
-    el.onclick=()=>togglePPP(p.name,el);
+    el.className = 'ppp-card';
+    el.innerHTML = `<div class="ppp-icon">${p.icon}</div><span class="ppp-name">${p.name}</span><span class="ppp-sub">${p.sub}</span>`;
+    el.onclick = () => togglePPP(p.name, el);
     g.appendChild(el);
   });
 }
@@ -388,12 +360,12 @@ function renderPPP() {
 function togglePPP(n, el) {
   if (selectedPPP.has(n)) { selectedPPP.delete(n); el.classList.remove('selected'); }
   else {
-    if (selectedPPP.size>=4) { showToast('Maksimal 4 dimensi','error'); return; }
+    if (selectedPPP.size >= 4) { showToast('Maksimal 4 dimensi', 'error'); return; }
     selectedPPP.add(n); el.classList.add('selected');
   }
   document.getElementById('countPPP').textContent = selectedPPP.size;
   document.querySelectorAll('.ppp-card').forEach(c => {
-    if(!c.classList.contains('selected')) c.classList.toggle('disabled', selectedPPP.size>=4);
+    if (!c.classList.contains('selected')) c.classList.toggle('disabled', selectedPPP.size >= 4);
   });
   checkIntentionComplete();
 }
@@ -417,217 +389,167 @@ async function joinSession() {
   const code = document.getElementById('sessionCode').value.trim().toUpperCase();
   const nama = document.getElementById('namaGuru').value.trim();
   const errEl = document.getElementById('joinError');
-  errEl.style.display='none';
-  if (!code) { errEl.textContent='Masukkan kode sesi.'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  if (!code) { errEl.textContent = 'Masukkan kode sesi.'; errEl.style.display = 'block'; return; }
+
   const btn = document.getElementById('btnJoin');
-  btn.disabled=true; btn.textContent='Memeriksa...';
+  btn.disabled = true; btn.textContent = 'Memeriksa...';
+
   try {
-    const { data, error } = await db.from('workshop_sessions').select('*').eq('session_code',code).single();
-    if (error||!data) { errEl.textContent='Kode sesi tidak ditemukan.'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Gabung →'; return; }
-    if (!data.is_active) { errEl.textContent='Sesi ini sudah ditutup.'; errEl.style.display='block'; btn.disabled=false; btn.textContent='Gabung →'; return; }
-    currentSession=data; namaGuru=nama||'Anonim';
+    const { data, error } = await db.from('workshop_sessions')
+      .select('*').eq('session_code', code).single();
+
+    if (error || !data) {
+      errEl.textContent = 'Kode sesi tidak ditemukan.'; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Gabung →'; return;
+    }
+    if (!data.is_active) {
+      errEl.textContent = 'Sesi ini sudah ditutup.'; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Gabung →'; return;
+    }
+
+    currentSession = data;
+    namaGuru = nama || 'Anonim';
     document.getElementById('headerSubtitle').textContent = data.nama_sekolah;
-    document.getElementById('progressWrap').style.display='flex';
-    subscribeToSession();
-    goToFase(data.fase);
+    document.getElementById('progressWrap').style.display = 'flex';
+
+    // Langsung ke diagnosis — tidak perlu tunggu fase
+    renderChecklist();
+    goTo('diagnosis');
+
   } catch(e) {
-    errEl.textContent='Terjadi kesalahan. Coba lagi.'; errEl.style.display='block';
-    btn.disabled=false; btn.textContent='Gabung →';
+    errEl.textContent = 'Terjadi kesalahan. Coba lagi.';
+    errEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Gabung →';
   }
 }
 
-function goToFase(fase) {
-  updateProgress(fase);
-  if (fase==='diagnosis') {
-    renderChecklist(); showScreen('screen-diagnosis');
-
-  } else if (fase==='nilai') {
-    if (submitted.nilai) showTunggu('intention');       // sudah submit, tunggu intention
-    else { renderNilai(); showScreen('screen-nilai'); } // belum submit, isi nilai
-
-  } else if (fase==='intention') {
-    if (submitted.intention) showTunggu('komitmen');        // sudah submit, tunggu komitmen
-    else { renderPPP(); showScreen('screen-intention'); }   // belum submit, isi intention
-
-  } else if (fase==='komitmen') {
-    if (submitted.komitmen) showScreen('screen-done');  // sudah submit, selesai
-    else showScreen('screen-komitmen');                 // belum submit, isi komitmen
-
-  } else if (fase==='selesai') {
-    showScreen('screen-done');
-  }
-}
-
-// ---- SUBMITS ----
+// ---- SUBMIT DIAGNOSIS ----
 async function submitDiagnosis() {
-  const btn=document.getElementById('btnDiagnosis'); btn.disabled=true; btn.textContent='Mengirim...';
+  const btn = document.getElementById('btnDiagnosis');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
   const { error } = await db.from('diagnosis_responses').insert({
-    session_code:currentSession.session_code, nama_guru:namaGuru,
-    q1:diagnosisAnswers[0], q2:diagnosisAnswers[1], q3:diagnosisAnswers[2], q4:diagnosisAnswers[3], q5:diagnosisAnswers[4],
+    session_code: currentSession.session_code, nama_guru: namaGuru,
+    q1: diagnosisAnswers[0], q2: diagnosisAnswers[1], q3: diagnosisAnswers[2],
+    q4: diagnosisAnswers[3], q5: diagnosisAnswers[4],
   });
-  if (error) { showErr('diagnosisError','Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='Kirim Jawaban →'; return; }
-  submitted.diagnosis=true; showToast('Diagnosis terkirim! ✓','success');
-  const fase = await getFase();
-  if (fase==='nilai') { renderNilai(); showScreen('screen-nilai'); updateProgress('nilai'); }
-  else showTunggu('nilai');
-}
 
-async function submitNilai() {
-  if (selectedNilai.size===0) return;
-  const btn=document.getElementById('btnNilai'); btn.disabled=true; btn.textContent='Mengirim...';
-  const { error } = await db.from('nilai_votes').insert({
-    session_code:currentSession.session_code, nama_guru:namaGuru,
-    nilai_dipilih:[...selectedNilai],
-    nilai_sendiri:document.getElementById('nilaiSendiri').value.trim()||null,
-  });
-  if (error) { showErr('nilaiError','Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='Kirim Pilihan →'; return; }
-  submitted.nilai=true; showToast('Nilai terkirim! ✓','success');
-  const fase = await getFase();
-  if (fase==='intention') { renderPPP(); showScreen('screen-intention'); updateProgress('intention'); }
-  else showTunggu('intention');
-}
-
-async function submitIntention() {
-  const karakter=document.getElementById('int_karakter').value.trim();
-  const mampu=document.getElementById('int_mampu').value.trim();
-  const kontribusi=document.getElementById('int_kontribusi').value.trim();
-  if (!karakter||!mampu||!kontribusi) return;
-  const btn=document.getElementById('btnIntention'); btn.disabled=true; btn.textContent='Mengirim...';
-  const { error } = await db.from('intention_responses').insert({
-    session_code:currentSession.session_code, nama_guru:namaGuru,
-    karakter, mampu, kontribusi, ppp_dipilih:[...selectedPPP],
-  });
-  if (error) { showErr('intentionError','Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='Kirim Harapan →'; return; }
-  submitted.intention=true; showToast('Intention terkirim! ✓','success');
-  const fase = await getFase();
-  if (fase==='komitmen') { showScreen('screen-komitmen'); updateProgress('komitmen'); }
-  else showTunggu('komitmen');
-}
-
-async function submitKomitmen() {
-  const txt=document.getElementById('komitmenText').value.trim();
-  if (txt.length<10) return;
-  const btn=document.getElementById('btnKomitmen'); btn.disabled=true; btn.textContent='Mengirim...';
-  const { error } = await db.from('komitmen_responses').insert({
-    session_code:currentSession.session_code, nama_guru:namaGuru, komitmen:txt,
-  });
-  if (error) { showErr('komitmenError','Gagal mengirim. Coba lagi.'); btn.disabled=false; btn.textContent='Kirim Komitmen →'; return; }
-  submitted.komitmen=true; showToast('Komitmen terkirim! 🎉','success');
-  showScreen('screen-done'); updateProgress('selesai');
-}
-
-// ---- REALTIME + POLLING ----
-
-function handleFaseChange(fase) {
-  currentSession.fase = fase;
-
-  if (fase === 'nilai' && !submitted.nilai) {
-    showToast('Sesi Nilai dibuka!');
-    renderNilai(); showScreen('screen-nilai'); updateProgress('nilai');
-
-  } else if (fase === 'intention' && !submitted.intention) {
-    showToast('Sesi Intention dibuka!');
-    renderPPP(); showScreen('screen-intention'); updateProgress('intention');
-
-  } else if (fase === 'komitmen' && !submitted.komitmen) {
-    showToast('Sesi Komitmen dibuka!');
-    showScreen('screen-komitmen'); updateProgress('komitmen');
-
-  } else if (fase === 'selesai') {
-    showToast('Workshop selesai!', 'success');
-    setTimeout(() => { showScreen('screen-done'); updateProgress('selesai'); }, 1500);
+  if (error) {
+    showErr('diagnosisError', 'Gagal mengirim. Coba lagi.');
+    btn.disabled = false; btn.textContent = 'Kirim & Lanjut →'; return;
   }
+
+  showToast('Diagnosis terkirim! ✓', 'success');
+  renderNilai();
+  goTo('nilai');
 }
 
-let pollInterval = null;
+// ---- SUBMIT NILAI ----
+async function submitNilai() {
+  if (selectedNilai.size === 0) return;
+  const btn = document.getElementById('btnNilai');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
 
-function startPolling() {
-  pollInterval = setInterval(async () => {
-    // Hanya aktif saat di screen tunggu
-    const active = document.querySelector('.screen.active');
-    if (!active || active.id !== 'screen-tunggu') return;
+  const { error } = await db.from('nilai_votes').insert({
+    session_code: currentSession.session_code, nama_guru: namaGuru,
+    nilai_dipilih: [...selectedNilai],
+    nilai_sendiri: document.getElementById('nilaiSendiri').value.trim() || null,
+  });
 
-    const { data } = await db
-      .from('workshop_sessions')
-      .select('fase')
-      .eq('session_code', currentSession.session_code)
-      .single();
+  if (error) {
+    showErr('nilaiError', 'Gagal mengirim. Coba lagi.');
+    btn.disabled = false; btn.textContent = 'Kirim & Lanjut →'; return;
+  }
 
-    if (!data) return;
-
-    // Selalu panggil handleFaseChange saat di screen tunggu
-    // agar guru yang bergabung saat fase sudah berubah tetap pindah
-    handleFaseChange(data.fase);
-
-  }, 3000);
+  showToast('Nilai terkirim! ✓', 'success');
+  renderPPP();
+  goTo('intention');
 }
 
-function subscribeToSession() {
-  db.channel('guru-ws')
-    .on('postgres_changes', {
-      event: 'UPDATE', schema: 'public', table: 'workshop_sessions',
-      filter: `session_code=eq.${currentSession.session_code}`
-    }, payload => {
-      handleFaseChange(payload.new.fase);
-    })
-    .subscribe();
+// ---- SUBMIT INTENTION ----
+async function submitIntention() {
+  const karakter    = document.getElementById('int_karakter').value.trim();
+  const mampu       = document.getElementById('int_mampu').value.trim();
+  const kontribusi  = document.getElementById('int_kontribusi').value.trim();
+  if (!karakter || !mampu || !kontribusi) return;
 
-  startPolling();
+  const btn = document.getElementById('btnIntention');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  const { error } = await db.from('intention_responses').insert({
+    session_code: currentSession.session_code, nama_guru: namaGuru,
+    karakter, mampu, kontribusi, ppp_dipilih: [...selectedPPP],
+  });
+
+  if (error) {
+    showErr('intentionError', 'Gagal mengirim. Coba lagi.');
+    btn.disabled = false; btn.textContent = 'Kirim & Lanjut →'; return;
+  }
+
+  showToast('Intention terkirim! ✓', 'success');
+  goTo('komitmen');
+}
+
+// ---- SUBMIT KOMITMEN ----
+async function submitKomitmen() {
+  const txt = document.getElementById('komitmenText').value.trim();
+  if (txt.length < 10) return;
+
+  const btn = document.getElementById('btnKomitmen');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+
+  const { error } = await db.from('komitmen_responses').insert({
+    session_code: currentSession.session_code, nama_guru: namaGuru,
+    komitmen: txt,
+  });
+
+  if (error) {
+    showErr('komitmenError', 'Gagal mengirim. Coba lagi.');
+    btn.disabled = false; btn.textContent = 'Kirim Komitmen →'; return;
+  }
+
+  showToast('Komitmen terkirim! 🎉', 'success');
+  goTo('selesai');
+}
+
+// ---- NAVIGASI ----
+function goTo(fase) {
+  const screens = {
+    diagnosis: 'screen-diagnosis',
+    nilai:     'screen-nilai',
+    intention: 'screen-intention',
+    komitmen:  'screen-komitmen',
+    selesai:   'screen-done',
+  };
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screens[fase]).classList.add('active');
+  window.scrollTo(0, 0);
+  updateProgress(fase);
+}
+
+function updateProgress(fase) {
+  const steps = document.getElementById('progressSteps');
+  steps.innerHTML = '';
+  const idx = FASE_STEPS.indexOf(fase);
+  FASE_STEPS.forEach((f, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i < idx ? ' done' : i === idx ? ' active' : '');
+    steps.appendChild(dot);
+  });
+  document.getElementById('progressLabel').textContent = FASE_LABEL[fase] || '';
 }
 
 // ---- HELPERS ----
-async function getFase() {
-  const { data } = await db.from('workshop_sessions').select('fase').eq('session_code',currentSession.session_code).single();
-  return data?.fase;
-}
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
-
-function showTunggu(nextFase) {
-  const msgs = {
-    nilai:     { icon:'✅', judul:'Diagnosis Terkirim!',   desc:'Fasilitator sedang merekap hasil. Halaman akan berpindah otomatis saat sesi Nilai dibuka.' },
-    intention: { icon:'✅', judul:'Nilai Terkirim!',        desc:'Fasilitator sedang merekap voting. Halaman akan berpindah otomatis saat sesi Intention dibuka.' },
-    komitmen:  { icon:'✅', judul:'Intention Terkirim!',    desc:'Hampir selesai! Halaman akan berpindah saat sesi Komitmen dibuka.' },
-  };
-  const m=msgs[nextFase]||msgs.nilai;
-  document.getElementById('tungguIcon').textContent=m.icon;
-  document.getElementById('tungguJudul').textContent=m.judul;
-  document.getElementById('tungguDesc').textContent=m.desc;
-  showScreen('screen-tunggu');
-
-  // Langsung cek fase terkini — mungkin admin sudah buka fase berikutnya
-  // sebelum guru selesai submit
-  db.from('workshop_sessions')
-    .select('fase')
-    .eq('session_code', currentSession.session_code)
-    .single()
-    .then(({ data }) => { if (data) handleFaseChange(data.fase); });
-}
-
-function updateProgress(currentFase) {
-  const steps=document.getElementById('progressSteps');
-  steps.innerHTML='';
-  FASE_ORDER.forEach((f,i)=>{
-    const idx=FASE_ORDER.indexOf(currentFase);
-    const dot=document.createElement('div');
-    dot.className='step-dot'+(i<idx?' done':i===idx?' active':'');
-    steps.appendChild(dot);
-  });
-  document.getElementById('progressLabel').textContent=FASE_LABEL[currentFase]||'';
-}
-
 function showErr(id, msg) {
-  const el=document.getElementById(id); el.textContent=msg; el.style.display='block';
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = 'block';
 }
 
-function showToast(msg, type='') {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show '+type;
-  setTimeout(()=>t.classList.remove('show'),3000);
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
 </body>
