@@ -132,13 +132,13 @@ input[type="text"]:focus,textarea:focus{border-color:var(--blue);background:whit
     <div class="input-group">
       <label>Kode Sesi</label>
       <input type="text" id="sessionCode" placeholder="Contoh: VISI2026" maxlength="12"
-        oninput="this.value=this.value.toUpperCase().trim()" autocomplete="off" spellcheck="false">
+        oninput="this.value=this.value.toUpperCase().trim();checkJoinReady()" autocomplete="off" spellcheck="false">
     </div>
     <div class="input-group">
-      <label>Nama Anda (opsional)</label>
-      <input type="text" id="namaGuru" placeholder="Nama atau inisial" maxlength="40">
+      <label>Nama Anda <span style="color:var(--red)">*</span></label>
+      <input type="text" id="namaGuru" placeholder="Tulis nama lengkap Anda" maxlength="60" oninput="checkJoinReady()">
     </div>
-    <button class="btn btn-blue" id="btnJoin" onclick="joinSession()">Gabung →</button>
+    <button class="btn btn-blue" id="btnJoin" onclick="joinSession()" disabled>Gabung →</button>
     <div class="err" id="joinError"></div>
   </div>
 </div>
@@ -262,6 +262,7 @@ const SUPABASE_URL      = 'https://wtzyhmuodneiswpguqrq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enlobXVvZG5laXN3cGd1cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzIyOTMsImV4cCI6MjA5MTIwODI5M30.z7XK0DmkB2B5zLVbk6Ka0jBuf0CWDSoeZVCu3nf2Ruk';
 // ============================================================
 
+
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -384,6 +385,13 @@ function checkKomitmenComplete() {
   document.getElementById('btnKomitmen').disabled = txt.length < 10;
 }
 
+// ---- JOIN VALIDATION ----
+function checkJoinReady() {
+  const code = document.getElementById('sessionCode').value.trim();
+  const nama = document.getElementById('namaGuru').value.trim();
+  document.getElementById('btnJoin').disabled = !(code && nama);
+}
+
 // ---- JOIN ----
 async function joinSession() {
   const code = document.getElementById('sessionCode').value.trim().toUpperCase();
@@ -391,6 +399,7 @@ async function joinSession() {
   const errEl = document.getElementById('joinError');
   errEl.style.display = 'none';
   if (!code) { errEl.textContent = 'Masukkan kode sesi.'; errEl.style.display = 'block'; return; }
+  if (!nama) { errEl.textContent = 'Nama wajib diisi.'; errEl.style.display = 'block'; return; }
 
   const btn = document.getElementById('btnJoin');
   btn.disabled = true; btn.textContent = 'Memeriksa...';
@@ -409,7 +418,7 @@ async function joinSession() {
     }
 
     currentSession = data;
-    namaGuru = nama || 'Anonim';
+    namaGuru = nama;
     document.getElementById('headerSubtitle').textContent = data.nama_sekolah;
     document.getElementById('progressWrap').style.display = 'flex';
 
