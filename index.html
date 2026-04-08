@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Workshop Visi Bersama</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  /* ===== CONFIG: Ganti dengan nilai Supabase Anda ===== */
+  /* Lihat file CONFIG.md untuk panduan setup */
+
+  :root {
+    --blue: #1a56db;
+    --blue-light: #e8f0ff;
+    --blue-dark: #1240a8;
+    --teal: #0d9488;
+    --teal-light: #e0f7f4;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --amber: #d97706;
+    --amber-light: #fef3c7;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background: #f0f4ff;
+    min-height: 100vh;
+    color: var(--gray-800);
+    padding-bottom: 40px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, #3b82f6 100%);
+    color: white;
+    padding: 20px 20px 28px;
+    text-align: center;
+  }
+  .header .label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-bottom: 6px;
+  }
+  .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .header .subtitle { font-size: 14px; opacity: 0.85; }
+
+  /* Progress bar */
+  .progress-wrap {
+    background: white;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .progress-steps {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+  }
+  .step-dot {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--gray-200);
+    flex: 1;
+    transition: background 0.3s;
+  }
+  .step-dot.active { background: var(--blue); }
+  .step-dot.done { background: var(--teal); }
+  .progress-label {
+    font-size: 12px;
+    color: var(--gray-600);
+    white-space: nowrap;
+  }
+
+  /* Card */
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .section-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  h2 { font-size: 18px; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; }
+  .desc { font-size: 14px; color: var(--gray-600); line-height: 1.6; margin-bottom: 20px; }
+
+  /* Input */
+  .input-group { margin-bottom: 16px; }
+  .input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-600);
+    margin-bottom: 6px;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--gray-800);
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: var(--font);
+    background: var(--gray-50);
+  }
+  input[type="text"]:focus { border-color: var(--blue); background: white; }
+
+  /* Checkbox item */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--gray-50);
+    user-select: none;
+  }
+  .check-item.yes {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+  .check-item.no {
+    border-color: var(--red);
+    background: var(--red-light);
+  }
+
+  .check-toggle {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--gray-200);
+    background: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .toggle-btn.yes-btn.active { background: var(--green); border-color: var(--green); }
+  .toggle-btn.no-btn.active  { background: var(--red);   border-color: var(--red); }
+
+  .check-text { font-size: 14px; line-height: 1.5; color: var(--gray-800); flex: 1; padding-top: 2px; }
+
+  /* Nilai cards */
+  .nilai-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .nilai-card {
+    padding: 12px;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--gray-50);
+    transition: all 0.15s;
+    user-select: none;
+    color: var(--gray-800);
+    position: relative;
+  }
+  .nilai-card:active { transform: scale(0.97); }
+  .nilai-card.selected {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    font-weight: 600;
+  }
+  .nilai-card.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 12px;
+    color: var(--blue);
+  }
+  .nilai-card.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .nilai-count {
+    text-align: center;
+    font-size: 13px;
+    color: var(--gray-600);
+    margin-bottom: 12px;
+  }
+  .nilai-count strong { color: var(--blue); }
+
+  /* Button */
+  .btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+  .btn-primary {
+    background: var(--blue);
+    color: white;
+  }
+  .btn-primary:active { background: var(--blue-dark); transform: scale(0.98); }
+  .btn-primary:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; }
+  .btn-teal { background: var(--teal); color: white; }
+  .btn-teal:active { background: #0b7a70; }
+  .btn-teal:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+  /* States */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Loading */
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--gray-200);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 20px auto;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gray-800);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 100;
+    transition: transform 0.3s;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  /* Info box */
+  .info-box {
+    background: var(--amber-light);
+    border-left: 4px solid var(--amber);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* Success screen */
+  .success-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--green-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 16px;
+  }
+  .success-text {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .success-text h2 { font-size: 22px; margin-bottom: 8px; }
+  .success-text p { font-size: 15px; color: var(--gray-600); line-height: 1.6; }
+
+  /* Fase badge */
+  .fase-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .fase-badge.diagnosis { background: var(--blue-light); color: var(--blue-dark); }
+  .fase-badge.nilai { background: var(--teal-light); color: #0f766e; }
+  .fase-badge.selesai { background: var(--green-light); color: #065f46; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="label">Workshop</div>
+  <h1>Visi Bersama</h1>
+  <div class="subtitle">Panduan untuk Guru</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-steps">
+    <div class="step-dot active" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="step-dot" id="dot3"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">Langkah 1 / 3</div>
+</div>
+
+<!-- ==================== SCREEN 0: JOIN ==================== -->
+<div class="screen active" id="screen-join">
+  <div class="card">
+    <div class="section-badge">🏫 Masuk Workshop</div>
+    <h2>Selamat Datang!</h2>
+    <p class="desc">Masukkan kode sesi yang diberikan fasilitator dan nama Anda untuk bergabung.</p>
+
+    <div class="input-group">
+      <label>Kode Sesi</label>
+      <input type="text" id="sessionCode" placeholder="Contoh: VISI2026" maxlength="12"
+        oninput="this.value = this.value.toUpperCase().trim()" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="input-group">
+      <label>Nama Anda (opsional)</label>
+      <input type="text" id="namaGuru" placeholder="Nama atau inisial" maxlength="40">
+    </div>
+
+    <button class="btn btn-primary" onclick="joinSession()">Gabung →</button>
+
+    <div id="joinError" style="margin-top:12px;font-size:13px;color:var(--red);text-align:center;display:none"></div>
+  </div>
+
+  <div class="card" style="background: var(--blue-light); border: none; box-shadow: none;">
+    <p style="font-size:13px; color:var(--blue-dark); text-align:center; line-height:1.6;">
+      Workshop ini dirancang agar sekolah memiliki <strong>visi yang hidup</strong> — bukan sekadar tulisan di dinding, tapi yang dirasakan setiap hari.
+    </p>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 1: DIAGNOSIS ==================== -->
+<div class="screen" id="screen-diagnosis">
+  <div class="card">
+    <div class="section-badge">📊 Bagian 1</div>
+    <h2>Diagnosis Bersama</h2>
+    <p class="desc">Jawab 5 pertanyaan berikut dengan jujur. Pilih <strong>✓ Ya</strong> atau <strong>✗ Tidak</strong> untuk setiap pernyataan.</p>
+
+    <div class="info-box">
+      Ini bukan tes — ini titik awal kita bersama. Semua jawaban anonim.
+    </div>
+
+    <div id="checklistItems"></div>
+
+    <div id="diagnosisError" style="margin-top:8px;font-size:13px;color:var(--red);text-align:center;display:none"></div>
+    <button class="btn btn-primary" id="btnDiagnosis" onclick="submitDiagnosis()" disabled>
+      Kirim Jawaban →
+    </button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 2: NILAI ==================== -->
+<div class="screen" id="screen-nilai">
+  <div class="card">
+    <div class="section-badge">💎 Bagian 2</div>
+    <h2>Pilih Nilai Inti</h2>
+    <p class="desc">Pilih <strong>3 nilai</strong> yang paling mencerminkan sekolah ini — atau yang paling ingin Anda lihat tumbuh di sini.</p>
+
+    <div class="nilai-count">Terpilih: <strong id="countSelected">0</strong> / 3</div>
+
+    <div class="nilai-grid" id="nilaiGrid"></div>
+
+    <div class="input-group" style="margin-top:4px;">
+      <label>Tambah nilai sendiri (opsional)</label>
+      <input type="text" id="nilaiSendiri" placeholder="Tulis nilai yang tidak ada di atas..." maxlength="30">
+    </div>
+
+    <div id="nilaiError" style="margin-top:8px;font-size:13px;color:var(--red);text-align:center;display:none"></div>
+    <button class="btn btn-teal" id="btnNilai" onclick="submitNilai()" disabled>
+      Kirim Pilihan →
+    </button>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 3: MENUNGGU ==================== -->
+<div class="screen" id="screen-tunggu">
+  <div class="card">
+    <div class="section-badge">⏳ Diagnosis Terkirim</div>
+    <h2>Jawaban Terkirim!</h2>
+    <p class="desc">Terima kasih. Fasilitator sedang merekap hasil diagnosis.</p>
+    <p class="desc" style="margin-top:0">Tunggu instruksi untuk lanjut ke bagian berikutnya — memilih nilai bersama.</p>
+    <div class="spinner"></div>
+    <p style="text-align:center;font-size:13px;color:var(--gray-400);">Menunggu sesi nilai dibuka...</p>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 4: DONE ==================== -->
+<div class="screen" id="screen-done">
+  <div class="card">
+    <div class="success-icon">🎉</div>
+    <div class="success-text">
+      <h2>Terima Kasih!</h2>
+      <p>Anda telah berkontribusi dalam merancang<br>visi sekolah kita bersama.</p>
+    </div>
+    <div class="card" style="background:var(--blue-light);box-shadow:none;border:none;margin:0 0 16px;padding:16px;">
+      <p style="font-size:14px;color:var(--blue-dark);text-align:center;font-weight:600;">
+        "Visi bukan milik kepala sekolah saja, tapi milik kita semua."
+      </p>
+    </div>
+    <button class="btn btn-primary" onclick="location.reload()">Mulai Ulang</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// KONFIGURASI — Ganti dengan nilai proyek Supabase Anda
+// ============================================================
+const SUPABASE_URL = 'https://wtzyhmuodneiswpguqrq.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enlobXVvZG5laXN3cGd1cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzIyOTMsImV4cCI6MjA5MTIwODI5M30.z7XK0DmkB2B5zLVbk6Ka0jBuf0CWDSoeZVCu3nf2Ruk';
+// ============================================================
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// State
+let currentSession = null;
+let diagnosisAnswers = {};
+let selectedNilai = new Set();
+let hasSubmittedDiagnosis = false;
+let hasSubmittedNilai = false;
+let namaGuru = '';
+
+// Pertanyaan diagnosis
+const QUESTIONS = [
+  'Saya bisa menyebutkan visi sekolah kita tanpa melihat dinding',
+  'Saya tahu apa makna visi itu bagi cara saya mengajar sehari-hari',
+  'Saya pernah merujuk pada visi saat mengambil keputusan di kelas',
+  'Siswa saya tahu mengapa mereka belajar di sekolah ini',
+  'Saya bangga menceritakan visi sekolah ini kepada orang lain',
+];
+
+// 30 nilai dari dokumen
+const NILAI_LIST = [
+  'Rasa ingin tahu','Keberanian','Integritas','Pelayanan','Ketekunan',
+  'Kolaborasi','Kreativitas','Kejujuran','Empati','Keadilan',
+  'Kemandirian','Tanggung jawab','Keterbukaan','Semangat belajar','Kesederhanaan',
+  'Kepedulian','Disiplin bermakna','Kegembiraan','Kepercayaan','Ketangguhan',
+  'Penghargaan','Kebersamaan','Inovasi','Kedamaian','Kebijaksanaan',
+  'Spiritualitas','Keteladanan','Keramahan','Ketegasan','Kasih sayang',
+];
+
+// ---- Render checklist ----
+function renderChecklist() {
+  const container = document.getElementById('checklistItems');
+  container.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const el = document.createElement('div');
+    el.className = 'check-item';
+    el.id = `qi-${i}`;
+    el.innerHTML = `
+      <span class="check-text">${q}</span>
+      <div class="check-toggle">
+        <button class="toggle-btn yes-btn" onclick="setAnswer(${i}, true)" title="Ya">✓</button>
+        <button class="toggle-btn no-btn" onclick="setAnswer(${i}, false)" title="Tidak">✗</button>
+      </div>`;
+    container.appendChild(el);
+  });
+}
+
+function setAnswer(idx, val) {
+  diagnosisAnswers[idx] = val;
+  const item = document.getElementById(`qi-${idx}`);
+  item.className = 'check-item ' + (val ? 'yes' : 'no');
+  item.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  item.querySelector(val ? '.yes-btn' : '.no-btn').classList.add('active');
+  checkDiagnosisComplete();
+}
+
+function checkDiagnosisComplete() {
+  const done = Object.keys(diagnosisAnswers).length === QUESTIONS.length;
+  document.getElementById('btnDiagnosis').disabled = !done;
+}
+
+// ---- Render nilai grid ----
+function renderNilai() {
+  const grid = document.getElementById('nilaiGrid');
+  grid.innerHTML = '';
+  NILAI_LIST.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'nilai-card';
+    el.textContent = n;
+    el.onclick = () => toggleNilai(n, el);
+    grid.appendChild(el);
+  });
+}
+
+function toggleNilai(n, el) {
+  if (selectedNilai.has(n)) {
+    selectedNilai.delete(n);
+    el.classList.remove('selected');
+  } else {
+    if (selectedNilai.size >= 3) { showToast('Maksimal 3 nilai', 'error'); return; }
+    selectedNilai.add(n);
+    el.classList.add('selected');
+  }
+  document.getElementById('countSelected').textContent = selectedNilai.size;
+  // Disable unselected jika sudah 3
+  document.querySelectorAll('.nilai-card').forEach(c => {
+    if (!c.classList.contains('selected')) {
+      c.classList.toggle('disabled', selectedNilai.size >= 3);
+    }
+  });
+  document.getElementById('btnNilai').disabled = selectedNilai.size === 0;
+}
+
+// ---- JOIN ----
+async function joinSession() {
+  const code = document.getElementById('sessionCode').value.trim().toUpperCase();
+  const nama = document.getElementById('namaGuru').value.trim();
+  const errEl = document.getElementById('joinError');
+  errEl.style.display = 'none';
+
+  if (!code) { errEl.textContent = 'Masukkan kode sesi terlebih dahulu.'; errEl.style.display = 'block'; return; }
+
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Memeriksa...';
+
+  try {
+    const { data, error } = await db.from('workshop_sessions')
+      .select('*').eq('session_code', code).single();
+
+    if (error || !data) {
+      errEl.textContent = 'Kode sesi tidak ditemukan. Cek kembali dengan fasilitator.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Gabung →';
+      return;
+    }
+
+    if (!data.is_active) {
+      errEl.textContent = 'Sesi ini sudah ditutup.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Gabung →';
+      return;
+    }
+
+    currentSession = data;
+    namaGuru = nama || 'Anonim';
+
+    // Simpan ke localStorage untuk refresh
+    localStorage.setItem('ws_session', code);
+    localStorage.setItem('ws_nama', namaGuru);
+
+    showScreen('screen-diagnosis');
+    renderChecklist();
+    document.getElementById('progressWrap').style.display = 'flex';
+    updateProgress(1);
+    subscribeToSession();
+
+    // Jika sesi sudah di fase nilai, langsung tampilkan nilai
+    if (data.fase === 'nilai' && !hasSubmittedNilai) {
+      showScreen('screen-nilai');
+      renderNilai();
+      updateProgress(2);
+    } else if (data.fase === 'selesai') {
+      showScreen('screen-done');
+    }
+
+  } catch (e) {
+    errEl.textContent = 'Terjadi kesalahan. Coba lagi.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Gabung →';
+  }
+}
+
+// ---- SUBMIT DIAGNOSIS ----
+async function submitDiagnosis() {
+  if (Object.keys(diagnosisAnswers).length < QUESTIONS.length) return;
+  const btn = document.getElementById('btnDiagnosis');
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+
+  const payload = {
+    session_code: currentSession.session_code,
+    nama_guru: namaGuru,
+    q1: diagnosisAnswers[0],
+    q2: diagnosisAnswers[1],
+    q3: diagnosisAnswers[2],
+    q4: diagnosisAnswers[3],
+    q5: diagnosisAnswers[4],
+  };
+
+  const { error } = await db.from('diagnosis_responses').insert(payload);
+  if (error) {
+    document.getElementById('diagnosisError').textContent = 'Gagal mengirim. Coba lagi.';
+    document.getElementById('diagnosisError').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Kirim Jawaban →';
+    return;
+  }
+
+  hasSubmittedDiagnosis = true;
+  showToast('Jawaban terkirim! ✓', 'success');
+
+  // Cek fase saat ini
+  const { data } = await db.from('workshop_sessions').select('fase').eq('session_code', currentSession.session_code).single();
+  if (data?.fase === 'nilai') {
+    showScreen('screen-nilai');
+    renderNilai();
+    updateProgress(2);
+  } else {
+    showScreen('screen-tunggu');
+    updateProgress(2);
+  }
+}
+
+// ---- SUBMIT NILAI ----
+async function submitNilai() {
+  if (selectedNilai.size === 0) return;
+  const btn = document.getElementById('btnNilai');
+  btn.disabled = true;
+  btn.textContent = 'Mengirim...';
+
+  const nilaiSendiri = document.getElementById('nilaiSendiri').value.trim();
+  const allNilai = [...selectedNilai];
+  if (nilaiSendiri) allNilai.push(nilaiSendiri);
+
+  const { error } = await db.from('nilai_votes').insert({
+    session_code: currentSession.session_code,
+    nama_guru: namaGuru,
+    nilai_dipilih: [...selectedNilai],
+    nilai_sendiri: nilaiSendiri || null,
+  });
+
+  if (error) {
+    document.getElementById('nilaiError').textContent = 'Gagal mengirim. Coba lagi.';
+    document.getElementById('nilaiError').style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Kirim Pilihan →';
+    return;
+  }
+
+  hasSubmittedNilai = true;
+  showToast('Pilihan nilai terkirim! ✓', 'success');
+  updateProgress(3);
+  showScreen('screen-done');
+}
+
+// ---- REALTIME: pantau perubahan fase ----
+function subscribeToSession() {
+  db.channel('session-update')
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'workshop_sessions',
+      filter: `session_code=eq.${currentSession.session_code}`
+    }, payload => {
+      const newFase = payload.new.fase;
+      currentSession.fase = newFase;
+
+      if (newFase === 'nilai' && !hasSubmittedNilai) {
+        showToast('Sesi nilai dibuka! Silakan pilih nilai ↓');
+        showScreen('screen-nilai');
+        renderNilai();
+        updateProgress(2);
+      } else if (newFase === 'selesai') {
+        showToast('Workshop selesai. Terima kasih!', 'success');
+        setTimeout(() => { showScreen('screen-done'); updateProgress(3); }, 1500);
+      }
+    })
+    .subscribe();
+}
+
+// ---- HELPERS ----
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function updateProgress(step) {
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById(`dot${i}`);
+    dot.className = 'step-dot' + (i < step ? ' done' : i === step ? ' active' : '');
+  }
+  document.getElementById('progressLabel').textContent = `Langkah ${step} / 3`;
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
