@@ -289,7 +289,6 @@ const SUPABASE_URL      = 'https://wtzyhmuodneiswpguqrq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enlobXVvZG5laXN3cGd1cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzIyOTMsImV4cCI6MjA5MTIwODI5M30.z7XK0DmkB2B5zLVbk6Ka0jBuf0CWDSoeZVCu3nf2Ruk';
 // ============================================================
 
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -519,11 +518,7 @@ async function submitKomitmen() {
 
 // ---- REALTIME + POLLING ----
 
-// Fungsi utama pindah fase — dipanggil baik dari realtime maupun polling
 function handleFaseChange(fase) {
-  if (fase === currentSession.fase && fase !== 'selesai') {
-    // Cek apakah perlu pindah dari screen tunggu
-  }
   currentSession.fase = fase;
 
   if (fase === 'nilai' && !submitted.nilai) {
@@ -538,7 +533,7 @@ function handleFaseChange(fase) {
     showToast('Sesi Komitmen dibuka!');
     showScreen('screen-komitmen'); updateProgress('komitmen');
 
-  } else if (fase === 'selesai' && !submitted.komitmen) {
+  } else if (fase === 'selesai') {
     showToast('Workshop selesai!', 'success');
     setTimeout(() => { showScreen('screen-done'); updateProgress('selesai'); }, 1500);
   }
@@ -547,9 +542,8 @@ function handleFaseChange(fase) {
 let pollInterval = null;
 
 function startPolling() {
-  // Poll setiap 4 detik sebagai backup realtime
   pollInterval = setInterval(async () => {
-    // Hanya poll jika sedang di screen tunggu
+    // Hanya aktif saat di screen tunggu
     const active = document.querySelector('.screen.active');
     if (!active || active.id !== 'screen-tunggu') return;
 
@@ -559,10 +553,13 @@ function startPolling() {
       .eq('session_code', currentSession.session_code)
       .single();
 
-    if (data && data.fase !== currentSession.fase) {
-      handleFaseChange(data.fase);
-    }
-  }, 4000);
+    if (!data) return;
+
+    // Selalu panggil handleFaseChange saat di screen tunggu
+    // agar guru yang bergabung saat fase sudah berubah tetap pindah
+    handleFaseChange(data.fase);
+
+  }, 3000);
 }
 
 function subscribeToSession() {
@@ -575,7 +572,6 @@ function subscribeToSession() {
     })
     .subscribe();
 
-  // Selalu jalankan polling sebagai backup
   startPolling();
 }
 
@@ -602,6 +598,14 @@ function showTunggu(nextFase) {
   document.getElementById('tungguJudul').textContent=m.judul;
   document.getElementById('tungguDesc').textContent=m.desc;
   showScreen('screen-tunggu');
+
+  // Langsung cek fase terkini — mungkin admin sudah buka fase berikutnya
+  // sebelum guru selesai submit
+  db.from('workshop_sessions')
+    .select('fase')
+    .eq('session_code', currentSession.session_code)
+    .single()
+    .then(({ data }) => { if (data) handleFaseChange(data.fase); });
 }
 
 function updateProgress(currentFase) {
