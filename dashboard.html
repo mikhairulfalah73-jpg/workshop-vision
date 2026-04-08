@@ -6,460 +6,287 @@
 <title>Dashboard Fasilitator — Visi Bersama</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-  :root {
-    --blue: #1a56db;
-    --blue-light: #e8f0ff;
-    --blue-dark: #1240a8;
-    --teal: #0d9488;
-    --teal-light: #e0f7f4;
-    --green: #059669;
-    --green-light: #d1fae5;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-400: #9ca3af;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --red: #dc2626;
-    --red-light: #fee2e2;
-    --amber: #d97706;
-    --amber-light: #fef3c7;
-    --purple: #7c3aed;
-    --purple-light: #ede9fe;
-    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font); background: #f0f4ff; color: var(--gray-800); }
+:root {
+  --blue:#1a56db; --blue-light:#e8f0ff; --blue-dark:#1240a8;
+  --teal:#0d9488; --teal-light:#e0f7f4;
+  --green:#059669; --green-light:#d1fae5;
+  --purple:#7c3aed; --purple-light:#ede9fe;
+  --orange:#ea580c; --orange-light:#fff7ed;
+  --gray-50:#f9fafb; --gray-100:#f3f4f6; --gray-200:#e5e7eb;
+  --gray-400:#9ca3af; --gray-600:#4b5563; --gray-800:#1f2937;
+  --red:#dc2626; --red-light:#fee2e2;
+  --amber:#d97706; --amber-light:#fef3c7;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:#f0f4ff;color:var(--gray-800)}
 
-  /* Sidebar + main layout */
-  .layout { display: flex; min-height: 100vh; }
-  .sidebar {
-    width: 260px;
-    background: white;
-    border-right: 1px solid var(--gray-200);
-    padding: 24px 16px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-  .main { flex: 1; padding: 24px; overflow-y: auto; }
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:white;border-right:1px solid var(--gray-200);padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.main{flex:1;padding:24px;overflow-y:auto}
 
-  /* Sidebar */
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 24px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--gray-200);
-  }
-  .brand-icon {
-    width: 36px; height: 36px;
-    background: var(--blue);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: white;
-  }
-  .brand-name { font-size: 14px; font-weight: 700; color: var(--gray-800); }
-  .brand-sub  { font-size: 11px; color: var(--gray-400); }
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gray-200)}
+.brand-icon{width:36px;height:36px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white}
+.brand-name{font-size:14px;font-weight:700}
+.brand-sub{font-size:11px;color:var(--gray-400)}
 
-  .sidebar-section { margin-bottom: 20px; }
-  .sidebar-label {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--gray-400);
-    margin-bottom: 8px;
-  }
-  .sidebar-item {
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: var(--gray-600);
-    cursor: pointer;
-    margin-bottom: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.15s;
-  }
-  .sidebar-item:hover { background: var(--gray-100); color: var(--gray-800); }
-  .sidebar-item.active { background: var(--blue-light); color: var(--blue-dark); font-weight: 600; }
+.session-box{background:var(--blue);color:white;border-radius:12px;padding:14px;margin-bottom:16px}
+.session-label{font-size:11px;opacity:.8;margin-bottom:2px}
+.session-code{font-size:28px;font-weight:800;letter-spacing:4px;font-family:monospace}
+.session-school{font-size:13px;opacity:.85;margin-top:4px}
 
-  /* Session info card */
-  .session-card {
-    background: var(--blue);
-    color: white;
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 16px;
-  }
-  .session-label { font-size: 11px; opacity: 0.8; margin-bottom: 2px; }
-  .session-code { font-size: 28px; font-weight: 800; letter-spacing: 4px; font-family: monospace; }
-  .session-school { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+.sb-section{margin-bottom:18px}
+.sb-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray-400);margin-bottom:7px}
+.sb-item{padding:9px 12px;border-radius:8px;font-size:14px;color:var(--gray-600);cursor:pointer;margin-bottom:2px;display:flex;align-items:center;gap:8px;transition:all .15s;user-select:none}
+.sb-item:hover{background:var(--gray-100);color:var(--gray-800)}
+.sb-item.active{background:var(--blue-light);color:var(--blue-dark);font-weight:600}
 
-  .fase-controls { display: flex; flex-direction: column; gap: 8px; }
-  .fase-btn {
-    padding: 10px 14px;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: all 0.15s;
-    text-align: left;
-  }
-  .fase-btn:active { transform: scale(0.97); }
-  .fase-btn-diagnosis { background: var(--blue-light); color: var(--blue-dark); }
-  .fase-btn-nilai      { background: var(--teal-light); color: #0f766e; }
-  .fase-btn-selesai    { background: var(--green-light); color: #065f46; }
-  .fase-btn:disabled   { opacity: 0.4; cursor: not-allowed; }
+.fase-badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px}
+.fb-diagnosis{background:var(--blue-light);color:var(--blue-dark)}
+.fb-nilai{background:var(--teal-light);color:#0f766e}
+.fb-intention{background:var(--purple-light);color:#5b21b6}
+.fb-komitmen{background:var(--orange-light);color:#9a3412}
+.fb-selesai{background:var(--green-light);color:#065f46}
 
-  .current-fase {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 20px;
-    display: inline-block;
-    margin-bottom: 12px;
-  }
-  .fase-diagnosis { background: var(--blue-light); color: var(--blue-dark); }
-  .fase-nilai     { background: var(--teal-light); color: #0f766e; }
-  .fase-selesai   { background: var(--green-light); color: #065f46; }
+.fase-btns{display:flex;flex-direction:column;gap:7px}
+.fase-btn{padding:9px 14px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s;text-align:left}
+.fase-btn:disabled{opacity:.35;cursor:not-allowed}
+.fb-to-nilai    {background:var(--teal-light);color:#0f766e}
+.fb-to-intention{background:var(--purple-light);color:#5b21b6}
+.fb-to-komitmen {background:var(--orange-light);color:#9a3412}
+.fb-to-selesai  {background:var(--green-light);color:#065f46}
 
-  /* Cards */
-  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
-  .stat-card {
-    background: white;
-    border-radius: 14px;
-    padding: 18px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .stat-num { font-size: 32px; font-weight: 800; color: var(--blue); }
-  .stat-label { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.live-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  /* Section card */
-  .section-card {
-    background: white;
-    border-radius: 14px;
-    padding: 22px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    margin-bottom: 20px;
-  }
-  .section-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--gray-800);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+/* Main panels */
+.panel-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.panel-sub{font-size:13px;color:var(--gray-400);margin-bottom:20px}
 
-  /* Bar chart */
-  .bar-item { margin-bottom: 12px; }
-  .bar-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-    color: var(--gray-600);
-    margin-bottom: 4px;
-  }
-  .bar-track {
-    height: 28px;
-    background: var(--gray-100);
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-  }
-  .bar-fill {
-    height: 100%;
-    border-radius: 6px;
-    transition: width 0.6s ease;
-    position: relative;
-  }
-  .bar-yes { background: var(--green); }
-  .bar-no  { background: var(--red); opacity: 0.7; }
-  .bar-pct {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 12px;
-    font-weight: 600;
-    color: white;
-  }
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:white;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.stat-num{font-size:30px;font-weight:800}
+.stat-label{font-size:12px;color:var(--gray-400);margin-top:2px}
+.sn-blue{color:var(--blue)}
+.sn-teal{color:var(--teal)}
+.sn-purple{color:var(--purple)}
+.sn-orange{color:var(--orange)}
 
-  /* Nilai ranking */
-  .nilai-rank-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--gray-100);
-  }
-  .nilai-rank-item:last-child { border-bottom: none; }
-  .rank-num {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 700;
-    flex-shrink: 0;
-  }
-  .rank-1 { background: #fbbf24; color: #78350f; }
-  .rank-2 { background: #9ca3af; color: white; }
-  .rank-3 { background: #d97706; color: white; }
-  .rank-other { background: var(--gray-100); color: var(--gray-600); }
-  .rank-name { flex: 1; font-size: 14px; color: var(--gray-800); }
-  .rank-bar {
-    flex: 2;
-    height: 8px;
-    background: var(--gray-100);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .rank-bar-fill {
-    height: 100%;
-    background: var(--teal);
-    border-radius: 4px;
-    transition: width 0.6s;
-  }
-  .rank-count { font-size: 13px; font-weight: 700; color: var(--teal); min-width: 24px; text-align: right; }
+.section-card{background:white;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:18px}
+.section-title{font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:16px;display:flex;align-items:center;gap:8px}
 
-  /* Setup form */
-  .setup-form { max-width: 480px; margin: 40px auto; }
-  .form-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-  .form-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
-  .form-sub   { font-size: 14px; color: var(--gray-400); margin-bottom: 28px; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--gray-600);
-    margin-bottom: 6px;
-  }
-  .form-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 2px solid var(--gray-200);
-    border-radius: 10px;
-    font-size: 15px;
-    color: var(--gray-800);
-    outline: none;
-    transition: border-color 0.2s;
-    font-family: var(--font);
-  }
-  .form-group input:focus { border-color: var(--blue); }
-  .btn-create {
-    width: 100%;
-    padding: 14px;
-    background: var(--blue);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: var(--font);
-    margin-top: 8px;
-  }
-  .btn-create:hover { background: var(--blue-dark); }
+/* Bar chart */
+.bar-item{margin-bottom:14px}
+.bar-label{display:flex;justify-content:space-between;font-size:13px;color:var(--gray-600);margin-bottom:5px}
+.bar-split{display:flex;height:32px;border-radius:8px;overflow:hidden;gap:2px}
+.bar-yes{background:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;transition:width .6s;min-width:0}
+.bar-no{background:var(--red);opacity:.7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;transition:width .6s;min-width:0}
 
-  /* Responsive */
-  @media (max-width: 768px) {
-    .layout { flex-direction: column; }
-    .sidebar { width: 100%; height: auto; position: static; }
-    .stat-row { grid-template-columns: 1fr 1fr; }
-    .main { padding: 16px; }
-  }
+/* Nilai ranking */
+.rank-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--gray-100)}
+.rank-item:last-child{border-bottom:none}
+.rank-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.rn-1{background:#fbbf24;color:#78350f}
+.rn-2{background:#9ca3af;color:white}
+.rn-3{background:#d97706;color:white}
+.rn-x{background:var(--gray-100);color:var(--gray-600)}
+.rank-name{flex:1;font-size:14px}
+.rank-bar{flex:2;height:7px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.rank-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .6s}
+.rank-count{font-size:13px;font-weight:700;color:var(--teal);min-width:22px;text-align:right}
 
-  .live-dot {
-    width: 8px; height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    display: inline-block;
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+/* Intention cards */
+.int-cards{display:flex;flex-direction:column;gap:8px}
+.int-card{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:12px}
+.int-card .ic-label{font-size:11px;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px}
+.int-card .ic-text{font-size:14px;color:var(--gray-800);line-height:1.5}
 
-  .empty-state {
-    text-align: center;
-    color: var(--gray-400);
-    font-size: 14px;
-    padding: 30px 0;
-  }
+/* PPP bar */
+.ppp-item{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ppp-icon{font-size:18px;width:28px;text-align:center}
+.ppp-name{flex:1;font-size:13px;color:var(--gray-800)}
+.ppp-bar{flex:2;height:7px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.ppp-fill{height:100%;background:var(--purple);border-radius:4px;transition:width .6s}
+.ppp-count{font-size:13px;font-weight:700;color:var(--purple);min-width:22px;text-align:right}
 
-  /* Custom nilai tags */
-  .tag {
-    display: inline-block;
-    background: var(--purple-light);
-    color: var(--purple);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin: 3px;
-  }
+/* Komitmen wall */
+.komitmen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.komitmen-note{background:var(--amber-light);border:1px solid var(--amber);border-radius:10px;padding:14px;font-size:13px;color:#78350f;line-height:1.6;position:relative}
+.komitmen-note .kn-name{font-size:11px;font-weight:700;color:var(--amber);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+
+/* Tags */
+.tag{display:inline-block;background:var(--purple-light);color:var(--purple);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px}
+
+/* Word cloud (top keywords) */
+.word-cloud{display:flex;flex-wrap:wrap;gap:8px;padding:8px 0}
+.word-tag{padding:6px 14px;border-radius:20px;font-weight:600;cursor:default}
+
+/* Setup */
+.setup-wrap{max-width:480px;margin:40px auto}
+.form-card{background:white;border-radius:16px;padding:32px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.form-title{font-size:22px;font-weight:800;margin-bottom:4px}
+.form-sub{font-size:14px;color:var(--gray-400);margin-bottom:24px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:5px}
+.form-group input{width:100%;padding:11px 14px;border:2px solid var(--gray-200);border-radius:10px;font-size:15px;color:var(--gray-800);outline:none;transition:border-color .2s;font-family:var(--font)}
+.form-group input:focus{border-color:var(--blue)}
+.btn-create{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.btn-create:hover{background:var(--blue-dark)}
+.divider{height:1px;background:var(--gray-200);margin:22px 0}
+.resume-row{display:flex;gap:8px}
+.resume-row input{flex:1;padding:10px 12px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:var(--font);outline:none}
+.resume-btn{padding:10px 16px;background:var(--gray-100);border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font);font-weight:600}
+
+.empty{text-align:center;color:var(--gray-400);font-size:14px;padding:28px 0}
+
+@media(max-width:768px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static}
+  .stat-row{grid-template-columns:1fr 1fr}
+  .main{padding:14px}
+}
 </style>
 </head>
 <body>
-
 <div class="layout">
 
-<!-- ===================== SIDEBAR ===================== -->
+<!-- SIDEBAR -->
 <div class="sidebar" id="sidebar" style="display:none">
-  <div class="sidebar-brand">
+  <div class="brand">
     <div class="brand-icon">🏫</div>
-    <div>
-      <div class="brand-name">Visi Bersama</div>
-      <div class="brand-sub">Dashboard Fasilitator</div>
-    </div>
+    <div><div class="brand-name">Visi Bersama</div><div class="brand-sub">Dashboard Fasilitator</div></div>
   </div>
 
-  <div class="session-card" id="sidebarSession">
+  <div class="session-box">
     <div class="session-label">Kode Sesi</div>
-    <div class="session-code" id="sidebarCode">—</div>
-    <div class="session-school" id="sidebarSchool">—</div>
+    <div class="session-code" id="sbCode">—</div>
+    <div class="session-school" id="sbSchool">—</div>
   </div>
 
-  <div class="sidebar-section">
-    <div class="sidebar-label">Navigasi</div>
-    <div class="sidebar-item active" onclick="showPanel('panel-overview')">📊 Overview</div>
-    <div class="sidebar-item" onclick="showPanel('panel-diagnosis')">🔍 Diagnosis</div>
-    <div class="sidebar-item" onclick="showPanel('panel-nilai')">💎 Nilai Terpilih</div>
+  <div class="sb-section">
+    <div class="sb-label">Panel</div>
+    <div class="sb-item active" onclick="showPanel('p-overview')">📊 Overview</div>
+    <div class="sb-item" onclick="showPanel('p-diagnosis')">🔍 Diagnosis</div>
+    <div class="sb-item" onclick="showPanel('p-nilai')">💎 Nilai</div>
+    <div class="sb-item" onclick="showPanel('p-intention')">🌱 Intention</div>
+    <div class="sb-item" onclick="showPanel('p-komitmen')">🤝 Komitmen</div>
   </div>
 
-  <div class="sidebar-section">
-    <div class="sidebar-label">Kontrol Sesi</div>
-    <div class="current-fase fase-diagnosis" id="faseBadge">⬤ Diagnosis</div>
-    <div class="fase-controls">
-      <button class="fase-btn fase-btn-nilai" id="btnBukaValues" onclick="setFase('nilai')">
-        → Buka Sesi Nilai
-      </button>
-      <button class="fase-btn fase-btn-selesai" id="btnSelesai" onclick="setFase('selesai')">
-        ✓ Tutup Workshop
-      </button>
+  <div class="sb-section">
+    <div class="sb-label">Kontrol Fase</div>
+    <div class="fase-badge fb-diagnosis" id="faseBadge">⬤ Diagnosis</div>
+    <div class="fase-btns">
+      <button class="fase-btn fb-to-nilai"     onclick="setFase('nilai')">→ Buka Sesi Nilai</button>
+      <button class="fase-btn fb-to-intention" onclick="setFase('intention')">→ Buka Intention</button>
+      <button class="fase-btn fb-to-komitmen"  onclick="setFase('komitmen')">→ Buka Komitmen</button>
+      <button class="fase-btn fb-to-selesai"   onclick="setFase('selesai')">✓ Tutup Workshop</button>
     </div>
   </div>
 
-  <div class="sidebar-section" style="margin-top:auto">
-    <div class="sidebar-label">Live</div>
+  <div class="sb-section" style="margin-top:12px">
+    <div class="sb-label">Status</div>
     <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600)">
       <span class="live-dot"></span> Realtime aktif
     </div>
   </div>
 </div>
 
-<!-- ===================== MAIN ===================== -->
+<!-- MAIN -->
 <div class="main">
 
-  <!-- SETUP (sebelum ada sesi) -->
-  <div id="panel-setup">
-    <div class="setup-form">
+  <!-- SETUP -->
+  <div id="p-setup">
+    <div class="setup-wrap">
       <div class="form-card">
         <div class="form-title">🏫 Buat Sesi Workshop</div>
-        <div class="form-sub">Isi data di bawah untuk membuat sesi baru. Bagikan kode sesi ke guru.</div>
-
-        <div class="form-group">
-          <label>Kode Sesi (unik, huruf kapital)</label>
+        <div class="form-sub">Isi data di bawah untuk membuat sesi baru.</div>
+        <div class="form-group"><label>Kode Sesi (huruf kapital)</label>
           <input type="text" id="inpCode" placeholder="Contoh: VISI2026" maxlength="12"
-            oninput="this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
-        </div>
-        <div class="form-group">
-          <label>Nama Sekolah</label>
-          <input type="text" id="inpSchool" placeholder="SDN Contoh 1">
-        </div>
-        <div class="form-group">
-          <label>Nama Fasilitator</label>
-          <input type="text" id="inpFasilitator" placeholder="Nama Anda">
-        </div>
-
-        <div id="setupError" style="font-size:13px;color:var(--red);margin:8px 0;display:none"></div>
+            oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"></div>
+        <div class="form-group"><label>Nama Sekolah</label>
+          <input type="text" id="inpSchool" placeholder="SDN Contoh 1"></div>
+        <div class="form-group"><label>Nama Fasilitator</label>
+          <input type="text" id="inpFasil" placeholder="Nama Anda"></div>
+        <div id="setupErr" style="font-size:13px;color:var(--red);margin:8px 0;display:none"></div>
         <button class="btn-create" onclick="createSession()">Buat Sesi & Mulai →</button>
-
-        <hr style="margin:24px 0;border:none;border-top:1px solid var(--gray-200)">
-        <p style="font-size:13px;color:var(--gray-400);margin-bottom:12px;">Atau lanjutkan sesi yang sudah ada:</p>
-        <div style="display:flex;gap:8px">
+        <div class="divider"></div>
+        <p style="font-size:13px;color:var(--gray-400);margin-bottom:10px">Lanjutkan sesi yang sudah ada:</p>
+        <div class="resume-row">
           <input type="text" id="inpResume" placeholder="Masukkan kode sesi"
-            style="flex:1;padding:10px 12px;border:2px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:var(--font);outline:none;"
-            oninput="this.value = this.value.toUpperCase().trim()">
-          <button onclick="resumeSession()"
-            style="padding:10px 16px;background:var(--gray-100);border:none;border-radius:8px;font-size:14px;cursor:pointer;font-family:var(--font);font-weight:600;">
-            Lanjutkan
-          </button>
+            oninput="this.value=this.value.toUpperCase().trim()">
+          <button class="resume-btn" onclick="resumeSession()">Lanjutkan</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- OVERVIEW -->
-  <div id="panel-overview" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div>
-        <h1 style="font-size:22px;font-weight:800;">📊 Overview Workshop</h1>
-        <p style="font-size:13px;color:var(--gray-400);margin-top:2px;">Data diperbarui otomatis</p>
-      </div>
-      <div style="font-size:13px;color:var(--gray-400)" id="lastUpdate">—</div>
-    </div>
-
+  <div id="p-overview" style="display:none">
+    <div class="panel-title">📊 Overview</div>
+    <div class="panel-sub" id="lastUpdate">Data diperbarui otomatis</div>
     <div class="stat-row">
-      <div class="stat-card">
-        <div class="stat-num" id="statDiagnosis">0</div>
-        <div class="stat-label">Respons Diagnosis</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" id="statNilai">0</div>
-        <div class="stat-label">Votes Nilai</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" id="statFase">—</div>
-        <div class="stat-label">Fase Aktif</div>
-      </div>
+      <div class="stat-card"><div class="stat-num sn-blue" id="stDiagnosis">0</div><div class="stat-label">Diagnosis</div></div>
+      <div class="stat-card"><div class="stat-num sn-teal" id="stNilai">0</div><div class="stat-label">Votes Nilai</div></div>
+      <div class="stat-card"><div class="stat-num sn-purple" id="stIntention">0</div><div class="stat-label">Intention</div></div>
+      <div class="stat-card"><div class="stat-num sn-orange" id="stKomitmen">0</div><div class="stat-label">Komitmen</div></div>
     </div>
-
-    <!-- Top 3 nilai -->
     <div class="section-card">
       <div class="section-title">💎 Top 3 Nilai Sementara</div>
-      <div id="top3Container"><div class="empty-state">Menunggu voting nilai...</div></div>
+      <div id="ovTop3"><div class="empty">Menunggu voting nilai...</div></div>
     </div>
-
-    <!-- Diagnosis summary -->
     <div class="section-card">
-      <div class="section-title">🔍 Ringkasan Diagnosis</div>
-      <div id="diagnosisSummary"><div class="empty-state">Menunggu respons diagnosis...</div></div>
+      <div class="section-title">📊 Ringkasan Diagnosis</div>
+      <div id="ovDiagnosis"><div class="empty">Menunggu respons diagnosis...</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">🌱 Kata Kunci Intention Terbanyak</div>
+      <div id="ovIntention"><div class="empty">Menunggu respons intention...</div></div>
     </div>
   </div>
 
-  <!-- DIAGNOSIS DETAIL -->
-  <div id="panel-diagnosis" style="display:none">
-    <h1 style="font-size:22px;font-weight:800;margin-bottom:20px">🔍 Hasil Diagnosis Lengkap</h1>
-
+  <!-- DIAGNOSIS -->
+  <div id="p-diagnosis" style="display:none">
+    <div class="panel-title">🔍 Hasil Diagnosis</div>
+    <div class="panel-sub">Persentase "Ya" per pernyataan</div>
     <div class="section-card">
-      <div class="section-title">Persentase "Ya" per Pernyataan</div>
-      <div id="diagnosisDetail"><div class="empty-state">Menunggu data...</div></div>
+      <div id="diagDetail"><div class="empty">Menunggu data...</div></div>
     </div>
   </div>
 
-  <!-- NILAI DETAIL -->
-  <div id="panel-nilai" style="display:none">
-    <h1 style="font-size:22px;font-weight:800;margin-bottom:20px">💎 Ranking Nilai</h1>
-
+  <!-- NILAI -->
+  <div id="p-nilai" style="display:none">
+    <div class="panel-title">💎 Ranking Nilai</div>
+    <div class="panel-sub">Berdasarkan jumlah suara guru</div>
     <div class="section-card">
-      <div class="section-title">Semua Nilai Berdasarkan Jumlah Suara</div>
-      <div id="nilaiRanking"><div class="empty-state">Menunggu voting...</div></div>
+      <div class="section-title">Semua Nilai</div>
+      <div id="nilaiRanking"><div class="empty">Menunggu voting...</div></div>
     </div>
-
     <div class="section-card">
       <div class="section-title">Nilai Tambahan dari Guru</div>
-      <div id="nilaiCustom"><div class="empty-state">Belum ada nilai tambahan.</div></div>
+      <div id="nilaiCustom"><div class="empty">Belum ada nilai tambahan.</div></div>
+    </div>
+  </div>
+
+  <!-- INTENTION -->
+  <div id="p-intention" style="display:none">
+    <div class="panel-title">🌱 Hasil Intention</div>
+    <div class="panel-sub">Harapan guru tentang siswa masa depan</div>
+    <div class="section-card">
+      <div class="section-title">Dimensi Profil Pelajar Pancasila — Ranking</div>
+      <div id="pppRanking"><div class="empty">Menunggu data...</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-title">Respons Guru — Semua Jawaban</div>
+      <div id="intentionList"><div class="empty">Menunggu data...</div></div>
+    </div>
+  </div>
+
+  <!-- KOMITMEN -->
+  <div id="p-komitmen" style="display:none">
+    <div class="panel-title">🤝 Commitment Wall</div>
+    <div class="panel-sub">Komitmen pribadi seluruh guru — <span id="komitmenCount">0</span> komitmen masuk</div>
+    <div class="komitmen-grid" id="komitmenWall">
+      <div class="empty" style="grid-column:1/-1">Menunggu komitmen guru...</div>
     </div>
   </div>
 
@@ -468,282 +295,297 @@
 
 <script>
 // ============================================================
-// KONFIGURASI — Ganti dengan nilai proyek Supabase Anda
-// ============================================================
-const SUPABASE_URL = 'https://wtzyhmuodneiswpguqrq.supabase.co';
+const SUPABASE_URL      = 'https://wtzyhmuodneiswpguqrq.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0enlobXVvZG5laXN3cGd1cXJxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2MzIyOTMsImV4cCI6MjA5MTIwODI5M30.z7XK0DmkB2B5zLVbk6Ka0jBuf0CWDSoeZVCu3nf2Ruk';
 // ============================================================
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const QUESTIONS = [
-  'Hafal visi sekolah tanpa melihat dinding',
+const QUESTIONS_SHORT = [
+  'Hafal visi tanpa melihat dinding',
   'Tahu makna visi dalam cara mengajar',
-  'Pernah merujuk visi saat ambil keputusan',
-  'Siswa tahu mengapa mereka belajar di sini',
-  'Bangga menceritakan visi ke orang lain',
+  'Pernah merujuk visi saat keputusan',
+  'Siswa tahu mengapa belajar di sini',
+  'Bangga ceritakan visi ke orang lain',
+];
+
+const PPP_LIST = [
+  { icon:'🙏', name:'Beriman & Bertakwa' },
+  { icon:'🌍', name:'Berkebhinekaan Global' },
+  { icon:'🤝', name:'Bergotong Royong' },
+  { icon:'💡', name:'Mandiri' },
+  { icon:'🔍', name:'Bernalar Kritis' },
+  { icon:'🚀', name:'Kreatif' },
+  { icon:'📚', name:'Cinta Ilmu' },
+  { icon:'💪', name:'Tangguh' },
 ];
 
 let currentSession = null;
-let diagnosisData = [];
-let nilaiData = [];
+let diagData = [], nilaiData = [], intentionData = [], komitmenData = [];
 
-// ---- CREATE SESSION ----
+const PANELS = ['p-setup','p-overview','p-diagnosis','p-nilai','p-intention','p-komitmen'];
+
+// ---- CREATE / RESUME ----
 async function createSession() {
-  const code  = document.getElementById('inpCode').value.trim();
+  const code = document.getElementById('inpCode').value.trim();
   const school = document.getElementById('inpSchool').value.trim();
-  const fasil  = document.getElementById('inpFasilitator').value.trim();
-  const errEl  = document.getElementById('setupError');
-  errEl.style.display = 'none';
-
-  if (!code || !school || !fasil) {
-    errEl.textContent = 'Semua kolom wajib diisi.';
-    errEl.style.display = 'block';
-    return;
-  }
-
+  const fasil = document.getElementById('inpFasil').value.trim();
+  const err = document.getElementById('setupErr');
+  err.style.display='none';
+  if (!code||!school||!fasil) { err.textContent='Semua kolom wajib diisi.'; err.style.display='block'; return; }
   const { data, error } = await db.from('workshop_sessions').insert({
-    session_code: code,
-    nama_sekolah: school,
-    nama_fasilitator: fasil,
-    fase: 'diagnosis',
-    is_active: true,
+    session_code:code, nama_sekolah:school, nama_fasilitator:fasil, fase:'diagnosis', is_active:true
   }).select().single();
-
   if (error) {
-    errEl.textContent = error.code === '23505'
-      ? 'Kode sesi sudah digunakan. Pilih kode lain.'
-      : 'Gagal membuat sesi: ' + error.message;
-    errEl.style.display = 'block';
-    return;
+    err.textContent = error.code==='23505' ? 'Kode sesi sudah digunakan.' : 'Error: '+error.message;
+    err.style.display='block'; return;
   }
-
-  localStorage.setItem('ws_dashboard_code', code);
-  loadSession(data);
+  localStorage.setItem('ws_dash_code', code);
+  initDashboard(data);
 }
 
 async function resumeSession() {
   const code = document.getElementById('inpResume').value.trim().toUpperCase();
   if (!code) return;
-
-  const { data, error } = await db.from('workshop_sessions')
-    .select('*').eq('session_code', code).single();
-  if (error || !data) { alert('Sesi tidak ditemukan.'); return; }
-
-  localStorage.setItem('ws_dashboard_code', code);
-  loadSession(data);
+  const { data } = await db.from('workshop_sessions').select('*').eq('session_code',code).single();
+  if (!data) { alert('Sesi tidak ditemukan.'); return; }
+  localStorage.setItem('ws_dash_code', code);
+  initDashboard(data);
 }
 
-async function loadSession(session) {
+async function initDashboard(session) {
   currentSession = session;
-  document.getElementById('panel-setup').style.display = 'none';
-  document.getElementById('sidebar').style.display = '';
-  document.getElementById('sidebarCode').textContent   = session.session_code;
-  document.getElementById('sidebarSchool').textContent = session.nama_sekolah;
+  document.getElementById('p-setup').style.display='none';
+  document.getElementById('sidebar').style.display='';
+  document.getElementById('sbCode').textContent   = session.session_code;
+  document.getElementById('sbSchool').textContent = session.nama_sekolah;
   updateFaseBadge(session.fase);
-  showPanel('panel-overview');
+  showPanel('p-overview');
   await fetchAll();
   subscribeRealtime();
 }
 
 async function fetchAll() {
   const code = currentSession.session_code;
-
-  const [{ data: diag }, { data: nilai }] = await Promise.all([
-    db.from('diagnosis_responses').select('*').eq('session_code', code),
-    db.from('nilai_votes').select('*').eq('session_code', code),
+  const [r1,r2,r3,r4] = await Promise.all([
+    db.from('diagnosis_responses').select('*').eq('session_code',code),
+    db.from('nilai_votes').select('*').eq('session_code',code),
+    db.from('intention_responses').select('*').eq('session_code',code),
+    db.from('komitmen_responses').select('*').eq('session_code',code),
   ]);
-
-  diagnosisData = diag || [];
-  nilaiData     = nilai || [];
-
+  diagData      = r1.data || [];
+  nilaiData     = r2.data || [];
+  intentionData = r3.data || [];
+  komitmenData  = r4.data || [];
   renderAll();
-  document.getElementById('lastUpdate').textContent =
-    'Update: ' + new Date().toLocaleTimeString('id-ID');
+  document.getElementById('lastUpdate').textContent = 'Update: '+new Date().toLocaleTimeString('id-ID');
 }
 
 function renderAll() {
-  const code = currentSession?.session_code;
-  document.getElementById('statDiagnosis').textContent = diagnosisData.length;
-  document.getElementById('statNilai').textContent     = nilaiData.length;
-  document.getElementById('statFase').textContent      = currentSession?.fase || '—';
-
-  renderDiagnosisSummary();
-  renderTop3();
-  renderDiagnosisDetail();
-  renderNilaiRanking();
+  document.getElementById('stDiagnosis').textContent = diagData.length;
+  document.getElementById('stNilai').textContent     = nilaiData.length;
+  document.getElementById('stIntention').textContent = intentionData.length;
+  document.getElementById('stKomitmen').textContent  = komitmenData.length;
+  renderDiag();
+  renderNilaiAll();
+  renderIntentionAll();
+  renderKomitmenWall();
+  renderOverview();
 }
 
-// ---- DIAGNOSIS SUMMARY (overview) ----
-function renderDiagnosisSummary() {
-  const container = document.getElementById('diagnosisSummary');
-  if (!diagnosisData.length) {
-    container.innerHTML = '<div class="empty-state">Menunggu respons diagnosis...</div>';
-    return;
-  }
+// ---- DIAGNOSIS ----
+function renderDiag() {
+  const el = document.getElementById('diagDetail');
+  if (!diagData.length) { el.innerHTML='<div class="empty">Menunggu data...</div>'; return; }
+  const total = diagData.length;
   const fields = ['q1','q2','q3','q4','q5'];
-  const total = diagnosisData.length;
-  container.innerHTML = fields.map((f, i) => {
-    const yes = diagnosisData.filter(r => r[f]).length;
-    const pct = Math.round(yes / total * 100);
-    return `<div class="bar-item">
-      <div class="bar-label">
-        <span>${QUESTIONS[i]}</span>
-        <span style="font-size:11px;color:var(--gray-400)">${yes}/${total}</span>
-      </div>
-      <div class="bar-track">
-        <div class="bar-fill bar-yes" style="width:${pct}%">
-          ${pct > 10 ? `<span class="bar-pct">${pct}%</span>` : ''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ---- DIAGNOSIS DETAIL ----
-function renderDiagnosisDetail() {
-  const container = document.getElementById('diagnosisDetail');
-  if (!diagnosisData.length) {
-    container.innerHTML = '<div class="empty-state">Menunggu data...</div>';
-    return;
-  }
-  const fields = ['q1','q2','q3','q4','q5'];
-  const total = diagnosisData.length;
-  container.innerHTML = fields.map((f, i) => {
-    const yes = diagnosisData.filter(r => r[f]).length;
+  el.innerHTML = fields.map((f,i) => {
+    const yes = diagData.filter(r=>r[f]).length;
     const no  = total - yes;
-    const pctY = Math.round(yes / total * 100);
-    const pctN = 100 - pctY;
-    return `<div class="bar-item" style="margin-bottom:20px">
-      <div class="bar-label">
-        <span style="font-weight:600">${QUESTIONS[i]}</span>
-        <span style="font-size:12px;color:var(--gray-400)">${total} respons</span>
-      </div>
-      <div style="display:flex;gap:4px;height:36px;border-radius:8px;overflow:hidden;">
-        <div style="background:var(--green);width:${pctY}%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:width 0.6s;min-width:${yes?'32px':'0'}">
-          ${yes ? `✓ ${pctY}%` : ''}
-        </div>
-        <div style="background:var(--red);opacity:0.7;width:${pctN}%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;transition:width 0.6s;min-width:${no?'32px':'0'}">
-          ${no ? `✗ ${pctN}%` : ''}
-        </div>
+    const py  = Math.round(yes/total*100);
+    const pn  = 100-py;
+    return `<div class="bar-item">
+      <div class="bar-label"><span><strong>${QUESTIONS_SHORT[i]}</strong></span><span style="font-size:11px;color:var(--gray-400)">${total} respons</span></div>
+      <div class="bar-split">
+        <div class="bar-yes" style="width:${py}%">${yes?`✓ ${py}%`:''}</div>
+        <div class="bar-no"  style="width:${pn}%">${no ?`✗ ${pn}%`:''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ---- NILAI TALLY ----
+// ---- NILAI ----
 function getNilaiCounts() {
   const counts = {};
-  nilaiData.forEach(v => {
-    (v.nilai_dipilih || []).forEach(n => {
-      counts[n] = (counts[n] || 0) + 1;
-    });
-  });
-  return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  nilaiData.forEach(v => (v.nilai_dipilih||[]).forEach(n => { counts[n]=(counts[n]||0)+1; }));
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]);
 }
 
-function renderTop3() {
-  const container = document.getElementById('top3Container');
+function renderNilaiAll() {
   const sorted = getNilaiCounts();
-  if (!sorted.length) {
-    container.innerHTML = '<div class="empty-state">Menunggu voting nilai...</div>';
-    return;
-  }
-  const top = sorted.slice(0, 3);
-  const medals = ['🥇','🥈','🥉'];
-  container.innerHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap">` +
-    top.map((([n, c], i) => `
-      <div style="flex:1;min-width:140px;background:var(--blue-light);border-radius:12px;padding:16px;text-align:center">
-        <div style="font-size:28px">${medals[i]}</div>
-        <div style="font-size:16px;font-weight:700;color:var(--blue-dark);margin-top:4px">${n}</div>
-        <div style="font-size:13px;color:var(--blue);margin-top:2px">${c} suara</div>
-      </div>`)).join('') +
-    '</div>';
-}
-
-function renderNilaiRanking() {
-  const container = document.getElementById('nilaiRanking');
-  const sorted = getNilaiCounts();
-  if (!sorted.length) {
-    container.innerHTML = '<div class="empty-state">Menunggu voting...</div>';
-    return;
-  }
+  const el = document.getElementById('nilaiRanking');
+  if (!sorted.length) { el.innerHTML='<div class="empty">Menunggu voting...</div>'; return; }
   const max = sorted[0][1];
-  container.innerHTML = sorted.map(([n, c], i) => {
-    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
-    return `<div class="nilai-rank-item">
-      <div class="rank-num ${rankClass}">${i + 1}</div>
+  el.innerHTML = sorted.map(([n,c],i) => {
+    const cls = i===0?'rn-1':i===1?'rn-2':i===2?'rn-3':'rn-x';
+    return `<div class="rank-item">
+      <div class="rank-num ${cls}">${i+1}</div>
       <div class="rank-name">${n}</div>
-      <div class="rank-bar"><div class="rank-bar-fill" style="width:${Math.round(c/max*100)}%"></div></div>
+      <div class="rank-bar"><div class="rank-fill" style="width:${Math.round(c/max*100)}%"></div></div>
       <div class="rank-count">${c}</div>
     </div>`;
   }).join('');
 
-  // Custom nilai
-  const customContainer = document.getElementById('nilaiCustom');
-  const customs = nilaiData.filter(v => v.nilai_sendiri).map(v => v.nilai_sendiri);
-  if (!customs.length) {
-    customContainer.innerHTML = '<div class="empty-state">Belum ada nilai tambahan.</div>';
-  } else {
-    customContainer.innerHTML = customs.map(n => `<span class="tag">${n}</span>`).join('');
+  const customs = nilaiData.filter(v=>v.nilai_sendiri).map(v=>v.nilai_sendiri);
+  const cel = document.getElementById('nilaiCustom');
+  cel.innerHTML = customs.length ? customs.map(n=>`<span class="tag">${n}</span>`).join('') : '<div class="empty">Belum ada nilai tambahan.</div>';
+}
+
+// ---- INTENTION ----
+function renderIntentionAll() {
+  // PPP ranking
+  const pppCounts = {};
+  intentionData.forEach(r => (r.ppp_dipilih||[]).forEach(p => { pppCounts[p]=(pppCounts[p]||0)+1; }));
+  const pppSorted = PPP_LIST.map(p=>({ ...p, count:pppCounts[p.name]||0 })).sort((a,b)=>b.count-a.count);
+  const maxPPP = Math.max(...pppSorted.map(p=>p.count), 1);
+  const pppEl = document.getElementById('pppRanking');
+  if (!intentionData.length) { pppEl.innerHTML='<div class="empty">Menunggu data...</div>'; }
+  else {
+    pppEl.innerHTML = pppSorted.map(p=>`
+      <div class="ppp-item">
+        <span class="ppp-icon">${p.icon}</span>
+        <span class="ppp-name">${p.name}</span>
+        <div class="ppp-bar"><div class="ppp-fill" style="width:${Math.round(p.count/maxPPP*100)}%"></div></div>
+        <span class="ppp-count">${p.count}</span>
+      </div>`).join('');
+  }
+
+  // Intention list
+  const listEl = document.getElementById('intentionList');
+  if (!intentionData.length) { listEl.innerHTML='<div class="empty">Menunggu data...</div>'; return; }
+  listEl.innerHTML = intentionData.map(r=>`
+    <div class="int-card" style="margin-bottom:10px">
+      <div style="font-size:11px;font-weight:600;color:var(--gray-400);margin-bottom:8px">${r.nama_guru||'Anonim'}</div>
+      <div class="ic-label">Karakter</div><div class="ic-text" style="margin-bottom:8px">${r.karakter}</div>
+      <div class="ic-label">Mampu</div><div class="ic-text" style="margin-bottom:8px">${r.mampu}</div>
+      <div class="ic-label">Berkontribusi</div><div class="ic-text">${r.kontribusi}</div>
+    </div>`).join('');
+}
+
+// ---- KOMITMEN ----
+function renderKomitmenWall() {
+  const el = document.getElementById('komitmenWall');
+  document.getElementById('komitmenCount').textContent = komitmenData.length;
+  if (!komitmenData.length) { el.innerHTML='<div class="empty" style="grid-column:1/-1">Menunggu komitmen guru...</div>'; return; }
+  el.innerHTML = komitmenData.map(r=>`
+    <div class="komitmen-note">
+      <div class="kn-name">${r.nama_guru||'Anonim'}</div>
+      ${r.komitmen}
+    </div>`).join('');
+}
+
+// ---- OVERVIEW ----
+function renderOverview() {
+  // Top 3 nilai
+  const sorted = getNilaiCounts();
+  const ovTop3 = document.getElementById('ovTop3');
+  if (!sorted.length) { ovTop3.innerHTML='<div class="empty">Menunggu voting nilai...</div>'; }
+  else {
+    const top = sorted.slice(0,3);
+    const medals = ['🥇','🥈','🥉'];
+    ovTop3.innerHTML = `<div style="display:flex;gap:12px;flex-wrap:wrap">` +
+      top.map(([n,c],i)=>`
+        <div style="flex:1;min-width:120px;background:var(--teal-light);border-radius:12px;padding:14px;text-align:center">
+          <div style="font-size:26px">${medals[i]}</div>
+          <div style="font-size:15px;font-weight:700;color:#0f766e;margin-top:4px">${n}</div>
+          <div style="font-size:13px;color:var(--teal)">${c} suara</div>
+        </div>`).join('') + '</div>';
+  }
+
+  // Diagnosis overview (bar ringkas)
+  const ovDiag = document.getElementById('ovDiagnosis');
+  if (!diagData.length) { ovDiag.innerHTML='<div class="empty">Menunggu respons...</div>'; }
+  else {
+    const total = diagData.length;
+    const fields = ['q1','q2','q3','q4','q5'];
+    ovDiag.innerHTML = fields.map((f,i)=>{
+      const yes = diagData.filter(r=>r[f]).length;
+      const py = Math.round(yes/total*100);
+      return `<div class="bar-item">
+        <div class="bar-label"><span style="font-size:12px">${QUESTIONS_SHORT[i]}</span><span style="font-size:11px;color:var(--gray-400)">${py}% Ya</span></div>
+        <div class="bar-split" style="height:20px">
+          <div class="bar-yes" style="width:${py}%"></div>
+          <div class="bar-no"  style="width:${100-py}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Intention word cloud (kata karakter terbanyak)
+  const ovInt = document.getElementById('ovIntention');
+  if (!intentionData.length) { ovInt.innerHTML='<div class="empty">Menunggu data...</div>'; }
+  else {
+    // Kumpulkan semua kata dari field karakter
+    const words = {};
+    intentionData.forEach(r => {
+      r.karakter.toLowerCase().split(/[,\s]+/).filter(w=>w.length>3).forEach(w => {
+        words[w] = (words[w]||0)+1;
+      });
+    });
+    const topWords = Object.entries(words).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    const maxW = Math.max(...topWords.map(w=>w[1]),1);
+    const colors = ['#1a56db','#0d9488','#7c3aed','#ea580c','#059669'];
+    ovInt.innerHTML = `<div class="word-cloud">` +
+      topWords.map(([w,c],i)=>{
+        const size = 12 + Math.round((c/maxW)*10);
+        return `<span class="word-tag" style="background:${colors[i%5]}22;color:${colors[i%5]};font-size:${size}px">${w} (${c})</span>`;
+      }).join('') + '</div>';
   }
 }
 
-// ---- FASE CONTROL ----
+// ---- FASE ----
 async function setFase(fase) {
   if (!confirm(`Ubah fase ke "${fase}"?`)) return;
-  await db.from('workshop_sessions')
-    .update({ fase })
-    .eq('session_code', currentSession.session_code);
+  await db.from('workshop_sessions').update({ fase }).eq('session_code', currentSession.session_code);
   currentSession.fase = fase;
   updateFaseBadge(fase);
-  document.getElementById('statFase').textContent = fase;
 }
 
 function updateFaseBadge(fase) {
   const b = document.getElementById('faseBadge');
-  const labels = { diagnosis: '⬤ Diagnosis', nilai: '⬤ Nilai', selesai: '⬤ Selesai' };
-  const cls    = { diagnosis: 'fase-diagnosis', nilai: 'fase-nilai', selesai: 'fase-selesai' };
-  b.textContent = labels[fase] || fase;
-  b.className = `current-fase ${cls[fase] || ''}`;
+  const cls = { diagnosis:'fb-diagnosis', nilai:'fb-nilai', intention:'fb-intention', komitmen:'fb-komitmen', selesai:'fb-selesai' };
+  const lbl = { diagnosis:'⬤ Diagnosis', nilai:'⬤ Nilai', intention:'⬤ Intention', komitmen:'⬤ Komitmen', selesai:'⬤ Selesai' };
+  b.className = `fase-badge ${cls[fase]||'fb-diagnosis'}`;
+  b.textContent = lbl[fase]||fase;
 }
 
 // ---- REALTIME ----
 function subscribeRealtime() {
   const code = currentSession.session_code;
-  db.channel('dashboard-live')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'diagnosis_responses',
-      filter: `session_code=eq.${code}` }, payload => {
-        diagnosisData.push(payload.new);
-        renderAll();
-    })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'nilai_votes',
-      filter: `session_code=eq.${code}` }, payload => {
-        nilaiData.push(payload.new);
-        renderAll();
-    })
+  db.channel('dash-live')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'diagnosis_responses',filter:`session_code=eq.${code}`},p=>{ diagData.push(p.new); renderAll(); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'nilai_votes',filter:`session_code=eq.${code}`},p=>{ nilaiData.push(p.new); renderAll(); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'intention_responses',filter:`session_code=eq.${code}`},p=>{ intentionData.push(p.new); renderAll(); })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'komitmen_responses',filter:`session_code=eq.${code}`},p=>{ komitmenData.push(p.new); renderAll(); })
     .subscribe();
 }
 
-// ---- PANEL SWITCH ----
+// ---- PANEL ----
 function showPanel(id) {
-  ['panel-overview','panel-diagnosis','panel-nilai'].forEach(p => {
-    document.getElementById(p).style.display = p === id ? '' : 'none';
-  });
-  document.querySelectorAll('.sidebar-item').forEach(el => {
-    el.classList.remove('active');
-    if (el.getAttribute('onclick')?.includes(id)) el.classList.add('active');
+  PANELS.forEach(p => document.getElementById(p).style.display = p===id?'':'none');
+  document.querySelectorAll('.sb-item').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('onclick')?.includes(id));
   });
   renderAll();
 }
 
 // ---- INIT ----
 window.onload = () => {
-  const saved = localStorage.getItem('ws_dashboard_code');
+  const saved = localStorage.getItem('ws_dash_code');
   if (saved) {
-    db.from('workshop_sessions').select('*').eq('session_code', saved).single()
-      .then(({ data }) => { if (data) loadSession(data); });
+    db.from('workshop_sessions').select('*').eq('session_code',saved).single()
+      .then(({data}) => { if(data) initDashboard(data); });
   }
 };
 </script>
